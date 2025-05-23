@@ -1,0 +1,165 @@
+[0.035s] Invoking command in '/home/fectec/X-ARM_VisualServoing/ros2_ws/build/xarm_planner': AMENT_PREFIX_PATH=/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_moveit_config:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_gazebo:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_controller:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_api:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_sdk:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_msgs:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_description:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/uf_ros_lib:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_moveit_config:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_gazebo:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_controller:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_api:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_sdk:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_msgs:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_description:/home/fectec/uros_ws/install/micro_ros_setup:/home/fectec/uros_ws/install/micro_ros_agent:/home/fectec/uros_ws/install/micro_ros_msgs:/opt/ros/humble LD_LIBRARY_PATH=/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_gazebo/lib:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_controller/lib:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_api/lib:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_sdk/lib:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_msgs/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_msgs/local/lib/python3.10/dist-packages:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/uf_ros_lib/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/cmake /home/fectec/X-ARM_VisualServoing/ros2_ws/src/xarm_ros2/xarm_planner -DCMAKE_INSTALL_PREFIX=/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner
+[0.122s] -- The C compiler identification is GNU 11.4.0
+[0.198s] -- The CXX compiler identification is GNU 11.4.0
+[0.207s] -- Detecting C compiler ABI info
+[0.300s] -- Detecting C compiler ABI info - done
+[0.310s] -- Check for working C compiler: /usr/bin/cc - skipped
+[0.311s] -- Detecting C compile features
+[0.311s] -- Detecting C compile features - done
+[0.315s] -- Detecting CXX compiler ABI info
+[0.428s] -- Detecting CXX compiler ABI info - done
+[0.440s] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[0.440s] -- Detecting CXX compile features
+[0.441s] -- Detecting CXX compile features - done
+[0.446s] -- Found ament_cmake: 1.3.11 (/opt/ros/humble/share/ament_cmake/cmake)
+[0.650s] -- Found Python3: /usr/bin/python3 (found version "3.10.12") found components: Interpreter 
+[0.807s] -- Found moveit: 2.5.9 (/opt/ros/humble/share/moveit/cmake)
+[0.812s] -- Found moveit_ros_planning_interface: 2.5.9 (/opt/ros/humble/share/moveit_ros_planning_interface/cmake)
+[1.047s] -- Found Boost: /usr/lib/x86_64-linux-gnu/cmake/Boost-1.74.0/BoostConfig.cmake (found version "1.74.0") found components: date_time filesystem program_options system thread 
+[1.123s] -- Found rosidl_generator_c: 3.1.6 (/opt/ros/humble/share/rosidl_generator_c/cmake)
+[1.133s] -- Found rosidl_adapter: 3.1.6 (/opt/ros/humble/share/rosidl_adapter/cmake)
+[1.148s] -- Found rosidl_generator_cpp: 3.1.6 (/opt/ros/humble/share/rosidl_generator_cpp/cmake)
+[1.172s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[1.197s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[1.531s] -- Found Boost: /usr/lib/x86_64-linux-gnu/cmake/Boost-1.74.0/BoostConfig.cmake (found version "1.74.0") found components: chrono date_time filesystem iostreams program_options regex serialization system thread 
+[1.622s] -- Found parameter_traits: 0.4.0 (/opt/ros/humble/share/parameter_traits/cmake)
+[1.693s] -- Found rmw_implementation_cmake: 6.1.2 (/opt/ros/humble/share/rmw_implementation_cmake/cmake)
+[1.698s] -- Found rmw_fastrtps_cpp: 6.2.7 (/opt/ros/humble/share/rmw_fastrtps_cpp/cmake)
+[1.838s] -- Found OpenSSL: /usr/lib/x86_64-linux-gnu/libcrypto.so (found version "3.0.2")  
+[1.875s] -- Found FastRTPS: /opt/ros/humble/include  
+[1.935s] -- Using RMW implementation 'rmw_fastrtps_cpp' as default
+[1.951s] -- Found Threads: TRUE  
+[2.041s] -- Found Eigen3: TRUE (found version "3.4.0") 
+[2.047s] -- Found rclcpp_lifecycle: 16.0.12 (/opt/ros/humble/share/rclcpp_lifecycle/cmake)
+[2.096s] -- Found Boost: /usr/lib/x86_64-linux-gnu/cmake/Boost-1.74.0/BoostConfig.cmake (found version "1.74.0") found components: filesystem 
+[2.285s] -- library: /usr/lib/x86_64-linux-gnu/libcurl.so
+[2.357s] -- Ensuring Eigen3 include directory is part of orocos-kdl CMake target
+[2.645s] -- Found Boost: /usr/lib/x86_64-linux-gnu/cmake/Boost-1.74.0/BoostConfig.cmake (found version "1.74.0") found components: system filesystem date_time program_options thread chrono 
+[2.710s] -- Found Boost: /usr/lib/x86_64-linux-gnu/cmake/Boost-1.74.0/BoostConfig.cmake (found version "1.74.0") found components: thread system filesystem regex date_time program_options 
+[2.758s] -- Found Boost: /usr/lib/x86_64-linux-gnu/cmake/Boost-1.74.0/BoostConfig.cmake (found version "1.74.0") found components: system filesystem date_time program_options thread 
+[2.818s] -- Found xarm_msgs: 0.0.0 (/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_msgs/share/xarm_msgs/cmake)
+[2.893s] -- Found ament_lint_auto: 0.12.12 (/opt/ros/humble/share/ament_lint_auto/cmake)
+[3.050s] -- Added test 'copyright' to check source files copyright and LICENSE
+[3.055s] -- Added test 'cppcheck' to perform static code analysis on C / C++ code
+[3.057s] -- Configured cppcheck include dirs: /home/fectec/X-ARM_VisualServoing/ros2_ws/src/xarm_ros2/xarm_planner/include
+[3.057s] -- Configured cppcheck exclude dirs and/or files: 
+[3.060s] -- Added test 'cpplint' to check C / C++ code against the Google style
+[3.061s] -- Configured cpplint exclude dirs and/or files: 
+[3.062s] -- Added test 'flake8' to check Python code syntax and style conventions
+[3.063s] -- Added test 'lint_cmake' to check CMake code style
+[3.065s] -- Added test 'pep257' to check Python code against some of the docstring style conventions in PEP 257
+[3.069s] -- Added test 'uncrustify' to check C / C++ code style
+[3.069s] -- Configured uncrustify additional arguments: 
+[3.070s] -- Added test 'xmllint' to check XML markup files
+[3.073s] -- Configuring done
+[3.290s] -- Generating done
+[3.360s] -- Build files have been written to: /home/fectec/X-ARM_VisualServoing/ros2_ws/build/xarm_planner
+[3.385s] Invoked command in '/home/fectec/X-ARM_VisualServoing/ros2_ws/build/xarm_planner' returned '0': AMENT_PREFIX_PATH=/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_moveit_config:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_gazebo:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_controller:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_api:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_sdk:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_msgs:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_description:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/uf_ros_lib:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_moveit_config:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_gazebo:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_controller:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_api:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_sdk:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_msgs:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_description:/home/fectec/uros_ws/install/micro_ros_setup:/home/fectec/uros_ws/install/micro_ros_agent:/home/fectec/uros_ws/install/micro_ros_msgs:/opt/ros/humble LD_LIBRARY_PATH=/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_gazebo/lib:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_controller/lib:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_api/lib:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_sdk/lib:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_msgs/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_msgs/local/lib/python3.10/dist-packages:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/uf_ros_lib/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/cmake /home/fectec/X-ARM_VisualServoing/ros2_ws/src/xarm_ros2/xarm_planner -DCMAKE_INSTALL_PREFIX=/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner
+[3.388s] Invoking command in '/home/fectec/X-ARM_VisualServoing/ros2_ws/build/xarm_planner': AMENT_PREFIX_PATH=/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_moveit_config:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_gazebo:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_controller:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_api:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_sdk:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_msgs:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_description:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/uf_ros_lib:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_moveit_config:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_gazebo:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_controller:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_api:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_sdk:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_msgs:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_description:/home/fectec/uros_ws/install/micro_ros_setup:/home/fectec/uros_ws/install/micro_ros_agent:/home/fectec/uros_ws/install/micro_ros_msgs:/opt/ros/humble LD_LIBRARY_PATH=/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_gazebo/lib:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_controller/lib:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_api/lib:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_sdk/lib:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_msgs/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_msgs/local/lib/python3.10/dist-packages:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/uf_ros_lib/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/cmake --build /home/fectec/X-ARM_VisualServoing/ros2_ws/build/xarm_planner -- -j12 -l12
+[3.479s] [  9%] [32mBuilding CXX object CMakeFiles/test_lite_gripper_realmove.dir/test/test_lite_gripper_realmove.cpp.o[0m
+[3.479s] [  9%] [32mBuilding CXX object CMakeFiles/test_xarm_planner_client_pose.dir/test/test_xarm_planner_client_pose.cpp.o[0m
+[3.480s] [ 13%] [32mBuilding CXX object CMakeFiles/test_xarm_gripper_planner_client_joint.dir/test/test_xarm_gripper_planner_client_joint.cpp.o[0m
+[3.492s] [ 22%] [32mBuilding CXX object CMakeFiles/xarm_planner.dir/src/xarm_planner.cpp.o[0m
+[3.492s] [ 22%] [32mBuilding CXX object CMakeFiles/test_xarm_planner_client_joint.dir/test/test_xarm_planner_client_joint.cpp.o[0m
+[11.272s] [ 27%] [32m[1mLinking CXX executable test_lite_gripper_realmove[0m
+[11.883s] [ 27%] Built target test_lite_gripper_realmove
+[12.134s] [ 31%] [32m[1mLinking CXX executable test_xarm_gripper_planner_client_joint[0m
+[12.653s] [ 36%] [32m[1mLinking CXX executable test_xarm_planner_client_joint[0m
+[12.662s] [ 36%] Built target test_xarm_gripper_planner_client_joint
+[13.103s] [ 36%] Built target test_xarm_planner_client_joint
+[13.363s] [ 40%] [32m[1mLinking CXX executable test_xarm_planner_client_pose[0m
+[13.819s] [ 40%] Built target test_xarm_planner_client_pose
+[19.643s] [ 45%] [32m[1mLinking CXX shared library libxarm_planner.so[0m
+[20.006s] [ 45%] Built target xarm_planner
+[20.056s] [ 50%] [32mBuilding CXX object CMakeFiles/test_xarm_planner_api_joint.dir/test/test_xarm_planner_api_joint.cpp.o[0m
+[20.057s] [ 54%] [32mBuilding CXX object CMakeFiles/xarm_planner_node.dir/src/xarm_planner_node.cpp.o[0m
+[20.057s] [ 59%] [32mBuilding CXX object CMakeFiles/test_dual_xarm_planner_api_joint.dir/test/test_dual_xarm_planner_api_joint.cpp.o[0m
+[20.058s] [ 63%] [32mBuilding CXX object CMakeFiles/test_xarm_planner_api_pose.dir/test/test_xarm_planner_api_pose.cpp.o[0m
+[20.063s] [ 68%] [32mBuilding CXX object CMakeFiles/xarm_gripper_planner_node.dir/src/xarm_gripper_planner_node.cpp.o[0m
+[20.067s] [ 72%] [32mBuilding CXX object CMakeFiles/test_xarm_gripper_planner_api_joint.dir/test/test_xarm_gripper_planner_api_joint.cpp.o[0m
+[35.414s] [ 77%] [32m[1mLinking CXX executable test_xarm_planner_api_joint[0m
+[35.938s] [ 81%] [32m[1mLinking CXX executable test_xarm_planner_api_pose[0m
+[36.135s] [ 86%] [32m[1mLinking CXX executable test_dual_xarm_planner_api_joint[0m
+[36.417s] [ 90%] [32m[1mLinking CXX executable test_xarm_gripper_planner_api_joint[0m
+[36.562s] [ 90%] Built target test_xarm_planner_api_pose
+[36.578s] [ 90%] Built target test_xarm_planner_api_joint
+[36.720s] [ 90%] Built target test_dual_xarm_planner_api_joint
+[37.066s] [ 90%] Built target test_xarm_gripper_planner_api_joint
+[37.317s] [ 95%] [32m[1mLinking CXX executable xarm_gripper_planner_node[0m
+[37.830s] [ 95%] Built target xarm_gripper_planner_node
+[38.615s] [100%] [32m[1mLinking CXX executable xarm_planner_node[0m
+[39.180s] [100%] Built target xarm_planner_node
+[39.200s] Invoked command in '/home/fectec/X-ARM_VisualServoing/ros2_ws/build/xarm_planner' returned '0': AMENT_PREFIX_PATH=/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_moveit_config:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_gazebo:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_controller:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_api:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_sdk:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_msgs:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_description:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/uf_ros_lib:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_moveit_config:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_gazebo:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_controller:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_api:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_sdk:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_msgs:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_description:/home/fectec/uros_ws/install/micro_ros_setup:/home/fectec/uros_ws/install/micro_ros_agent:/home/fectec/uros_ws/install/micro_ros_msgs:/opt/ros/humble LD_LIBRARY_PATH=/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_gazebo/lib:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_controller/lib:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_api/lib:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_sdk/lib:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_msgs/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_msgs/local/lib/python3.10/dist-packages:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/uf_ros_lib/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/cmake --build /home/fectec/X-ARM_VisualServoing/ros2_ws/build/xarm_planner -- -j12 -l12
+[39.203s] Invoking command in '/home/fectec/X-ARM_VisualServoing/ros2_ws/build/xarm_planner': AMENT_PREFIX_PATH=/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_moveit_config:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_gazebo:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_controller:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_api:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_sdk:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_msgs:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_description:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/uf_ros_lib:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_moveit_config:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_gazebo:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_controller:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_api:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_sdk:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_msgs:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_description:/home/fectec/uros_ws/install/micro_ros_setup:/home/fectec/uros_ws/install/micro_ros_agent:/home/fectec/uros_ws/install/micro_ros_msgs:/opt/ros/humble LD_LIBRARY_PATH=/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_gazebo/lib:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_controller/lib:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_api/lib:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_sdk/lib:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_msgs/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_msgs/local/lib/python3.10/dist-packages:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/uf_ros_lib/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/cmake --install /home/fectec/X-ARM_VisualServoing/ros2_ws/build/xarm_planner
+[39.219s] -- Install configuration: ""
+[39.220s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/include
+[39.220s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/include/xarm_planner
+[39.221s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/include/xarm_planner/xarm_planner.h
+[39.222s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/lib/libxarm_planner.so
+[39.223s] -- Set runtime path of "/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/lib/libxarm_planner.so" to ""
+[39.223s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/lib/xarm_planner/xarm_planner_node
+[39.226s] -- Set runtime path of "/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/lib/xarm_planner/xarm_planner_node" to ""
+[39.226s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/lib/xarm_planner/xarm_gripper_planner_node
+[39.228s] -- Set runtime path of "/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/lib/xarm_planner/xarm_gripper_planner_node" to ""
+[39.228s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/lib/xarm_planner/test_xarm_planner_api_joint
+[39.229s] -- Set runtime path of "/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/lib/xarm_planner/test_xarm_planner_api_joint" to ""
+[39.229s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/lib/xarm_planner/test_dual_xarm_planner_api_joint
+[39.229s] -- Set runtime path of "/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/lib/xarm_planner/test_dual_xarm_planner_api_joint" to ""
+[39.230s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/lib/xarm_planner/test_xarm_planner_api_pose
+[39.230s] -- Set runtime path of "/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/lib/xarm_planner/test_xarm_planner_api_pose" to ""
+[39.231s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/lib/xarm_planner/test_xarm_gripper_planner_api_joint
+[39.231s] -- Set runtime path of "/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/lib/xarm_planner/test_xarm_gripper_planner_api_joint" to ""
+[39.232s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/lib/xarm_planner/test_xarm_planner_client_joint
+[39.233s] -- Set runtime path of "/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/lib/xarm_planner/test_xarm_planner_client_joint" to ""
+[39.233s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/lib/xarm_planner/test_xarm_planner_client_pose
+[39.235s] -- Set runtime path of "/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/lib/xarm_planner/test_xarm_planner_client_pose" to ""
+[39.235s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/lib/xarm_planner/test_xarm_gripper_planner_client_joint
+[39.237s] -- Set runtime path of "/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/lib/xarm_planner/test_xarm_gripper_planner_client_joint" to ""
+[39.237s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/lib/xarm_planner/test_lite_gripper_realmove
+[39.240s] -- Set runtime path of "/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/lib/xarm_planner/test_lite_gripper_realmove" to ""
+[39.240s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/xarm_planner//launch
+[39.241s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/xarm_planner//launch/xarm7_planner_realmove.launch.py
+[39.242s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/xarm_planner//launch/test_move_group.launch.py
+[39.243s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/xarm_planner//launch/xarm7_mirror_planner_fake.launch.py
+[39.243s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/xarm_planner//launch/xarm6_planner_fake.launch.py
+[39.243s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/xarm_planner//launch/lite6_planner_realmove.launch.py
+[39.244s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/xarm_planner//launch/xarm5_planner_realmove.launch.py
+[39.244s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/xarm_planner//launch/test_lite_gripper_realmove.launch.py
+[39.245s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/xarm_planner//launch/lite6_planner_gazebo.launch.py
+[39.245s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/xarm_planner//launch/uf850_planner_gazebo.launch.py
+[39.246s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/xarm_planner//launch/xarm5_planner_fake.launch.py
+[39.246s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/xarm_planner//launch/xarm7_planner_fake.launch.py
+[39.247s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/xarm_planner//launch/test_dual_xarm_planner_api_joint.launch.py
+[39.247s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/xarm_planner//launch/test_xarm_gripper_planner_client_joint.launch.py
+[39.247s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/xarm_planner//launch/xarm6_planner_gazebo.launch.py
+[39.248s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/xarm_planner//launch/_robot_planner.launch.py
+[39.248s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/xarm_planner//launch/test_xarm_planner_client_joint.launch.py
+[39.249s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/xarm_planner//launch/xarm7_mirror_planner_gazebo.launch.py
+[39.249s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/xarm_planner//launch/xarm5_planner_gazebo.launch.py
+[39.250s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/xarm_planner//launch/test_xarm_planner_client_pose.launch.py
+[39.250s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/xarm_planner//launch/xarm7_mirror_planner_realmove.launch.py
+[39.251s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/xarm_planner//launch/xarm6_planner_realmove.launch.py
+[39.251s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/xarm_planner//launch/test_xarm_gripper_planner_api_joint.launch.py
+[39.252s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/xarm_planner//launch/xarm7_planner_gazebo.launch.py
+[39.252s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/xarm_planner//launch/_dual_robot_planner.launch.py
+[39.253s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/xarm_planner//launch/uf850_planner_fake.launch.py
+[39.253s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/xarm_planner//launch/lite6_planner_fake.launch.py
+[39.253s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/xarm_planner//launch/test_xarm_planner_api_joint.launch.py
+[39.254s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/xarm_planner//launch/uf850_planner_realmove.launch.py
+[39.254s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/xarm_planner//launch/test_xarm_planner_api_pose.launch.py
+[39.255s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/ament_index/resource_index/package_run_dependencies/xarm_planner
+[39.255s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/ament_index/resource_index/parent_prefix_path/xarm_planner
+[39.259s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/xarm_planner/environment/ament_prefix_path.sh
+[39.259s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/xarm_planner/environment/ament_prefix_path.dsv
+[39.260s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/xarm_planner/environment/path.sh
+[39.260s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/xarm_planner/environment/path.dsv
+[39.260s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/xarm_planner/local_setup.bash
+[39.261s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/xarm_planner/local_setup.sh
+[39.261s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/xarm_planner/local_setup.zsh
+[39.261s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/xarm_planner/local_setup.dsv
+[39.262s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/xarm_planner/package.dsv
+[39.262s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/ament_index/resource_index/packages/xarm_planner
+[39.262s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/xarm_planner/cmake/xarm_plannerConfig.cmake
+[39.263s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/xarm_planner/cmake/xarm_plannerConfig-version.cmake
+[39.263s] -- Installing: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_planner/share/xarm_planner/package.xml
+[39.266s] Invoked command in '/home/fectec/X-ARM_VisualServoing/ros2_ws/build/xarm_planner' returned '0': AMENT_PREFIX_PATH=/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_moveit_config:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_gazebo:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_controller:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_api:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_sdk:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_msgs:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_description:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/uf_ros_lib:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_moveit_config:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_gazebo:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_controller:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_api:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_sdk:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_msgs:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_description:/home/fectec/uros_ws/install/micro_ros_setup:/home/fectec/uros_ws/install/micro_ros_agent:/home/fectec/uros_ws/install/micro_ros_msgs:/opt/ros/humble LD_LIBRARY_PATH=/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_gazebo/lib:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_controller/lib:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_api/lib:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_sdk/lib:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_msgs/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/fectec/X-ARM_VisualServoing/ros2_ws/install/xarm_msgs/local/lib/python3.10/dist-packages:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/uf_ros_lib/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/cmake --install /home/fectec/X-ARM_VisualServoing/ros2_ws/build/xarm_planner

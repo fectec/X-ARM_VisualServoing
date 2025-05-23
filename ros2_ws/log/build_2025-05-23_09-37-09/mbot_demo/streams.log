@@ -1,0 +1,45 @@
+[0.528s] Invoking command in '/home/fectec/X-ARM_VisualServoing/ros2_ws/build/mbot_demo': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/fectec/X-ARM_VisualServoing/ros2_ws/build/mbot_demo -- -j12 -l12
+[0.705s] Invoked command in '/home/fectec/X-ARM_VisualServoing/ros2_ws/build/mbot_demo' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/fectec/X-ARM_VisualServoing/ros2_ws/build/mbot_demo -- -j12 -l12
+[0.708s] Invoking command in '/home/fectec/X-ARM_VisualServoing/ros2_ws/build/mbot_demo': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/fectec/X-ARM_VisualServoing/ros2_ws/build/mbot_demo
+[0.722s] -- Install configuration: ""
+[0.722s] -- Up-to-date: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/mbot_demo/share/mbot_demo//rviz
+[0.723s] -- Up-to-date: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/mbot_demo/share/mbot_demo//rviz/moveit.rviz
+[0.723s] -- Up-to-date: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/mbot_demo/share/mbot_demo//urdf
+[0.723s] -- Up-to-date: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/mbot_demo/share/mbot_demo//urdf/mbot.transmission.xacro
+[0.723s] -- Up-to-date: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/mbot_demo/share/mbot_demo//urdf/mbot.ros2_control.xacro
+[0.724s] -- Up-to-date: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/mbot_demo/share/mbot_demo//urdf/mbot_macro.xacro
+[0.724s] -- Up-to-date: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/mbot_demo/share/mbot_demo//urdf/mbot_with_xarm.urdf.xacro
+[0.724s] -- Up-to-date: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/mbot_demo/share/mbot_demo//urdf/mbot.gazebo.xacro
+[0.725s] -- Up-to-date: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/mbot_demo/share/mbot_demo//urdf/mbot.urdf.xacro
+[0.725s] -- Up-to-date: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/mbot_demo/share/mbot_demo//srdf
+[0.725s] -- Up-to-date: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/mbot_demo/share/mbot_demo//srdf/mbot_with_xarm.srdf.xacro
+[0.725s] -- Up-to-date: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/mbot_demo/share/mbot_demo//srdf/mbot_macro.srdf.xacro
+[0.725s] -- Up-to-date: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/mbot_demo/share/mbot_demo//config
+[0.725s] -- Up-to-date: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/mbot_demo/share/mbot_demo//config/controllers.yaml
+[0.725s] -- Up-to-date: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/mbot_demo/share/mbot_demo//config/kinematics.yaml
+[0.725s] -- Up-to-date: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/mbot_demo/share/mbot_demo//config/ros2_controllers.yaml
+[0.725s] -- Up-to-date: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/mbot_demo/share/mbot_demo//config/joint_limits.yaml
+[0.725s] -- Up-to-date: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/mbot_demo/share/mbot_demo//config/ompl_planning.yaml
+[0.726s] -- Up-to-date: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/mbot_demo/share/mbot_demo//worlds
+[0.726s] -- Up-to-date: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/mbot_demo/share/mbot_demo//worlds/empty.world
+[0.726s] -- Up-to-date: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/mbot_demo/share/mbot_demo//launch
+[0.726s] -- Up-to-date: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/mbot_demo/share/mbot_demo//launch/mbot_moveit_gazebo.launch.py
+[0.726s] -- Up-to-date: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/mbot_demo/share/mbot_demo//launch/_robot_on_mbot_gazebo.launch.py
+[0.726s] -- Up-to-date: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/mbot_demo/share/mbot_demo//launch/mbot_moveit_fake.launch.py
+[0.726s] -- Up-to-date: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/mbot_demo/share/mbot_demo//launch/mbot_moveit_realmove.launch.py
+[0.726s] -- Up-to-date: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/mbot_demo/share/ament_index/resource_index/package_run_dependencies/mbot_demo
+[0.727s] -- Up-to-date: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/mbot_demo/share/ament_index/resource_index/parent_prefix_path/mbot_demo
+[0.727s] -- Up-to-date: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/mbot_demo/share/mbot_demo/environment/ament_prefix_path.sh
+[0.727s] -- Up-to-date: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/mbot_demo/share/mbot_demo/environment/ament_prefix_path.dsv
+[0.727s] -- Up-to-date: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/mbot_demo/share/mbot_demo/environment/path.sh
+[0.727s] -- Up-to-date: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/mbot_demo/share/mbot_demo/environment/path.dsv
+[0.727s] -- Up-to-date: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/mbot_demo/share/mbot_demo/local_setup.bash
+[0.728s] -- Up-to-date: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/mbot_demo/share/mbot_demo/local_setup.sh
+[0.728s] -- Up-to-date: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/mbot_demo/share/mbot_demo/local_setup.zsh
+[0.728s] -- Up-to-date: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/mbot_demo/share/mbot_demo/local_setup.dsv
+[0.729s] -- Up-to-date: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/mbot_demo/share/mbot_demo/package.dsv
+[0.729s] -- Up-to-date: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/mbot_demo/share/ament_index/resource_index/packages/mbot_demo
+[0.729s] -- Up-to-date: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/mbot_demo/share/mbot_demo/cmake/mbot_demoConfig.cmake
+[0.730s] -- Up-to-date: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/mbot_demo/share/mbot_demo/cmake/mbot_demoConfig-version.cmake
+[0.730s] -- Up-to-date: /home/fectec/X-ARM_VisualServoing/ros2_ws/install/mbot_demo/share/mbot_demo/package.xml
+[0.751s] Invoked command in '/home/fectec/X-ARM_VisualServoing/ros2_ws/build/mbot_demo' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/fectec/X-ARM_VisualServoing/ros2_ws/build/mbot_demo

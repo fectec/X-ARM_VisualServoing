@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "xarm_msgs__py",
+		"source" : "/home/fectec/X-ARM_VisualServoing/ros2_ws/build/xarm_msgs/xarm_msgs__py"
+	}
+}

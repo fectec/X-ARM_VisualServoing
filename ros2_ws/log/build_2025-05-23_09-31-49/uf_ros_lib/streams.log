@@ -1,0 +1,62 @@
+[1.855s] Invoking command in '/home/fectec/X-ARM_VisualServoing/ros2_ws/src/xarm_ros2/uf_ros_lib': PYTHONPATH=/home/fectec/X-ARM_VisualServoing/ros2_ws/build/uf_ros_lib/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/uf_ros_lib/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../../build/uf_ros_lib build --build-base /home/fectec/X-ARM_VisualServoing/ros2_ws/build/uf_ros_lib/build install --record /home/fectec/X-ARM_VisualServoing/ros2_ws/build/uf_ros_lib/install.log --single-version-externally-managed install_data
+[2.834s] running egg_info
+[2.834s] creating ../../../build/uf_ros_lib/uf_ros_lib.egg-info
+[2.835s] writing ../../../build/uf_ros_lib/uf_ros_lib.egg-info/PKG-INFO
+[2.836s] writing dependency_links to ../../../build/uf_ros_lib/uf_ros_lib.egg-info/dependency_links.txt
+[2.836s] writing entry points to ../../../build/uf_ros_lib/uf_ros_lib.egg-info/entry_points.txt
+[2.839s] writing requirements to ../../../build/uf_ros_lib/uf_ros_lib.egg-info/requires.txt
+[2.839s] writing top-level names to ../../../build/uf_ros_lib/uf_ros_lib.egg-info/top_level.txt
+[2.839s] writing manifest file '../../../build/uf_ros_lib/uf_ros_lib.egg-info/SOURCES.txt'
+[2.843s] reading manifest file '../../../build/uf_ros_lib/uf_ros_lib.egg-info/SOURCES.txt'
+[2.845s] writing manifest file '../../../build/uf_ros_lib/uf_ros_lib.egg-info/SOURCES.txt'
+[2.846s] running build
+[2.846s] running build_py
+[2.846s] creating /home/fectec/X-ARM_VisualServoing/ros2_ws/build/uf_ros_lib/build
+[2.847s] creating /home/fectec/X-ARM_VisualServoing/ros2_ws/build/uf_ros_lib/build/lib
+[2.848s] creating /home/fectec/X-ARM_VisualServoing/ros2_ws/build/uf_ros_lib/build/lib/uf_ros_lib
+[2.848s] copying uf_ros_lib/parameter_descriptions.py -> /home/fectec/X-ARM_VisualServoing/ros2_ws/build/uf_ros_lib/build/lib/uf_ros_lib
+[2.848s] copying uf_ros_lib/moveit_configs_builder.py -> /home/fectec/X-ARM_VisualServoing/ros2_ws/build/uf_ros_lib/build/lib/uf_ros_lib
+[2.852s] copying uf_ros_lib/uf_robot_utils.py -> /home/fectec/X-ARM_VisualServoing/ros2_ws/build/uf_ros_lib/build/lib/uf_ros_lib
+[2.852s] copying uf_ros_lib/__init__.py -> /home/fectec/X-ARM_VisualServoing/ros2_ws/build/uf_ros_lib/build/lib/uf_ros_lib
+[2.853s] creating /home/fectec/X-ARM_VisualServoing/ros2_ws/build/uf_ros_lib/build/lib/uf_ros_lib/substitutions
+[2.853s] copying uf_ros_lib/substitutions/controllers.py -> /home/fectec/X-ARM_VisualServoing/ros2_ws/build/uf_ros_lib/build/lib/uf_ros_lib/substitutions
+[2.853s] copying uf_ros_lib/substitutions/planning_pipelines.py -> /home/fectec/X-ARM_VisualServoing/ros2_ws/build/uf_ros_lib/build/lib/uf_ros_lib/substitutions
+[2.853s] copying uf_ros_lib/substitutions/common.py -> /home/fectec/X-ARM_VisualServoing/ros2_ws/build/uf_ros_lib/build/lib/uf_ros_lib/substitutions
+[2.853s] copying uf_ros_lib/substitutions/kinematics.py -> /home/fectec/X-ARM_VisualServoing/ros2_ws/build/uf_ros_lib/build/lib/uf_ros_lib/substitutions
+[2.853s] copying uf_ros_lib/substitutions/__init__.py -> /home/fectec/X-ARM_VisualServoing/ros2_ws/build/uf_ros_lib/build/lib/uf_ros_lib/substitutions
+[2.854s] copying uf_ros_lib/substitutions/joint_limits.py -> /home/fectec/X-ARM_VisualServoing/ros2_ws/build/uf_ros_lib/build/lib/uf_ros_lib/substitutions
+[2.854s] running install
+[2.854s] running install_lib
+[2.856s] creating /home/fectec/X-ARM_VisualServoing/ros2_ws/install/uf_ros_lib/lib/python3.10/site-packages/uf_ros_lib
+[2.856s] creating /home/fectec/X-ARM_VisualServoing/ros2_ws/install/uf_ros_lib/lib/python3.10/site-packages/uf_ros_lib/substitutions
+[2.857s] copying /home/fectec/X-ARM_VisualServoing/ros2_ws/build/uf_ros_lib/build/lib/uf_ros_lib/substitutions/controllers.py -> /home/fectec/X-ARM_VisualServoing/ros2_ws/install/uf_ros_lib/lib/python3.10/site-packages/uf_ros_lib/substitutions
+[2.859s] copying /home/fectec/X-ARM_VisualServoing/ros2_ws/build/uf_ros_lib/build/lib/uf_ros_lib/substitutions/planning_pipelines.py -> /home/fectec/X-ARM_VisualServoing/ros2_ws/install/uf_ros_lib/lib/python3.10/site-packages/uf_ros_lib/substitutions
+[2.859s] copying /home/fectec/X-ARM_VisualServoing/ros2_ws/build/uf_ros_lib/build/lib/uf_ros_lib/substitutions/common.py -> /home/fectec/X-ARM_VisualServoing/ros2_ws/install/uf_ros_lib/lib/python3.10/site-packages/uf_ros_lib/substitutions
+[2.860s] copying /home/fectec/X-ARM_VisualServoing/ros2_ws/build/uf_ros_lib/build/lib/uf_ros_lib/substitutions/kinematics.py -> /home/fectec/X-ARM_VisualServoing/ros2_ws/install/uf_ros_lib/lib/python3.10/site-packages/uf_ros_lib/substitutions
+[2.860s] copying /home/fectec/X-ARM_VisualServoing/ros2_ws/build/uf_ros_lib/build/lib/uf_ros_lib/substitutions/__init__.py -> /home/fectec/X-ARM_VisualServoing/ros2_ws/install/uf_ros_lib/lib/python3.10/site-packages/uf_ros_lib/substitutions
+[2.860s] copying /home/fectec/X-ARM_VisualServoing/ros2_ws/build/uf_ros_lib/build/lib/uf_ros_lib/substitutions/joint_limits.py -> /home/fectec/X-ARM_VisualServoing/ros2_ws/install/uf_ros_lib/lib/python3.10/site-packages/uf_ros_lib/substitutions
+[2.860s] copying /home/fectec/X-ARM_VisualServoing/ros2_ws/build/uf_ros_lib/build/lib/uf_ros_lib/parameter_descriptions.py -> /home/fectec/X-ARM_VisualServoing/ros2_ws/install/uf_ros_lib/lib/python3.10/site-packages/uf_ros_lib
+[2.860s] copying /home/fectec/X-ARM_VisualServoing/ros2_ws/build/uf_ros_lib/build/lib/uf_ros_lib/moveit_configs_builder.py -> /home/fectec/X-ARM_VisualServoing/ros2_ws/install/uf_ros_lib/lib/python3.10/site-packages/uf_ros_lib
+[2.861s] copying /home/fectec/X-ARM_VisualServoing/ros2_ws/build/uf_ros_lib/build/lib/uf_ros_lib/uf_robot_utils.py -> /home/fectec/X-ARM_VisualServoing/ros2_ws/install/uf_ros_lib/lib/python3.10/site-packages/uf_ros_lib
+[2.861s] copying /home/fectec/X-ARM_VisualServoing/ros2_ws/build/uf_ros_lib/build/lib/uf_ros_lib/__init__.py -> /home/fectec/X-ARM_VisualServoing/ros2_ws/install/uf_ros_lib/lib/python3.10/site-packages/uf_ros_lib
+[2.865s] byte-compiling /home/fectec/X-ARM_VisualServoing/ros2_ws/install/uf_ros_lib/lib/python3.10/site-packages/uf_ros_lib/substitutions/controllers.py to controllers.cpython-310.pyc
+[2.867s] byte-compiling /home/fectec/X-ARM_VisualServoing/ros2_ws/install/uf_ros_lib/lib/python3.10/site-packages/uf_ros_lib/substitutions/planning_pipelines.py to planning_pipelines.cpython-310.pyc
+[2.872s] byte-compiling /home/fectec/X-ARM_VisualServoing/ros2_ws/install/uf_ros_lib/lib/python3.10/site-packages/uf_ros_lib/substitutions/common.py to common.cpython-310.pyc
+[2.874s] byte-compiling /home/fectec/X-ARM_VisualServoing/ros2_ws/install/uf_ros_lib/lib/python3.10/site-packages/uf_ros_lib/substitutions/kinematics.py to kinematics.cpython-310.pyc
+[2.876s] byte-compiling /home/fectec/X-ARM_VisualServoing/ros2_ws/install/uf_ros_lib/lib/python3.10/site-packages/uf_ros_lib/substitutions/__init__.py to __init__.cpython-310.pyc
+[2.877s] byte-compiling /home/fectec/X-ARM_VisualServoing/ros2_ws/install/uf_ros_lib/lib/python3.10/site-packages/uf_ros_lib/substitutions/joint_limits.py to joint_limits.cpython-310.pyc
+[2.880s] byte-compiling /home/fectec/X-ARM_VisualServoing/ros2_ws/install/uf_ros_lib/lib/python3.10/site-packages/uf_ros_lib/parameter_descriptions.py to parameter_descriptions.cpython-310.pyc
+[2.881s] byte-compiling /home/fectec/X-ARM_VisualServoing/ros2_ws/install/uf_ros_lib/lib/python3.10/site-packages/uf_ros_lib/moveit_configs_builder.py to moveit_configs_builder.cpython-310.pyc
+[2.908s] byte-compiling /home/fectec/X-ARM_VisualServoing/ros2_ws/install/uf_ros_lib/lib/python3.10/site-packages/uf_ros_lib/uf_robot_utils.py to uf_robot_utils.cpython-310.pyc
+[2.912s] byte-compiling /home/fectec/X-ARM_VisualServoing/ros2_ws/install/uf_ros_lib/lib/python3.10/site-packages/uf_ros_lib/__init__.py to __init__.cpython-310.pyc
+[2.913s] running install_data
+[2.914s] creating /home/fectec/X-ARM_VisualServoing/ros2_ws/install/uf_ros_lib/share/ament_index
+[2.915s] creating /home/fectec/X-ARM_VisualServoing/ros2_ws/install/uf_ros_lib/share/ament_index/resource_index
+[2.915s] creating /home/fectec/X-ARM_VisualServoing/ros2_ws/install/uf_ros_lib/share/ament_index/resource_index/packages
+[2.916s] copying resource/uf_ros_lib -> /home/fectec/X-ARM_VisualServoing/ros2_ws/install/uf_ros_lib/share/ament_index/resource_index/packages
+[2.916s] copying package.xml -> /home/fectec/X-ARM_VisualServoing/ros2_ws/install/uf_ros_lib/share/uf_ros_lib
+[2.917s] running install_egg_info
+[2.922s] Copying ../../../build/uf_ros_lib/uf_ros_lib.egg-info to /home/fectec/X-ARM_VisualServoing/ros2_ws/install/uf_ros_lib/lib/python3.10/site-packages/uf_ros_lib-0.0.0-py3.10.egg-info
+[2.924s] running install_scripts
+[2.982s] writing list of installed files to '/home/fectec/X-ARM_VisualServoing/ros2_ws/build/uf_ros_lib/install.log'
+[3.067s] Invoked command in '/home/fectec/X-ARM_VisualServoing/ros2_ws/src/xarm_ros2/uf_ros_lib' returned '0': PYTHONPATH=/home/fectec/X-ARM_VisualServoing/ros2_ws/build/uf_ros_lib/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/fectec/X-ARM_VisualServoing/ros2_ws/install/uf_ros_lib/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../../build/uf_ros_lib build --build-base /home/fectec/X-ARM_VisualServoing/ros2_ws/build/uf_ros_lib/build install --record /home/fectec/X-ARM_VisualServoing/ros2_ws/build/uf_ros_lib/install.log --single-version-externally-managed install_data
