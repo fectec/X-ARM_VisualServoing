@@ -1,9 +1,0 @@
-/home/fectec/X-ARM_VisualServoing/ros2_ws/build/xarm_moveit_config/CMakeFiles/uninstall.dir
-/home/fectec/X-ARM_VisualServoing/ros2_ws/build/xarm_moveit_config/CMakeFiles/xarm_moveit_config_uninstall.dir
-/home/fectec/X-ARM_VisualServoing/ros2_ws/build/xarm_moveit_config/CMakeFiles/test.dir
-/home/fectec/X-ARM_VisualServoing/ros2_ws/build/xarm_moveit_config/CMakeFiles/edit_cache.dir
-/home/fectec/X-ARM_VisualServoing/ros2_ws/build/xarm_moveit_config/CMakeFiles/rebuild_cache.dir
-/home/fectec/X-ARM_VisualServoing/ros2_ws/build/xarm_moveit_config/CMakeFiles/list_install_components.dir
-/home/fectec/X-ARM_VisualServoing/ros2_ws/build/xarm_moveit_config/CMakeFiles/install.dir
-/home/fectec/X-ARM_VisualServoing/ros2_ws/build/xarm_moveit_config/CMakeFiles/install/local.dir
-/home/fectec/X-ARM_VisualServoing/ros2_ws/build/xarm_moveit_config/CMakeFiles/install/strip.dir

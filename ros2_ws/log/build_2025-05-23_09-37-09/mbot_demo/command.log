@@ -1,4 +1,0 @@
-Invoking command in '/home/fectec/X-ARM_VisualServoing/ros2_ws/build/mbot_demo': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/fectec/X-ARM_VisualServoing/ros2_ws/build/mbot_demo -- -j12 -l12
-Invoked command in '/home/fectec/X-ARM_VisualServoing/ros2_ws/build/mbot_demo' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/fectec/X-ARM_VisualServoing/ros2_ws/build/mbot_demo -- -j12 -l12
-Invoking command in '/home/fectec/X-ARM_VisualServoing/ros2_ws/build/mbot_demo': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/fectec/X-ARM_VisualServoing/ros2_ws/build/mbot_demo
-Invoked command in '/home/fectec/X-ARM_VisualServoing/ros2_ws/build/mbot_demo' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/fectec/X-ARM_VisualServoing/ros2_ws/build/mbot_demo

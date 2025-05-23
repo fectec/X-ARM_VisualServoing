@@ -1,9 +1,0 @@
-/home/fectec/X-ARM_VisualServoing/ros2_ws/build/xarm_description/CMakeFiles/uninstall.dir
-/home/fectec/X-ARM_VisualServoing/ros2_ws/build/xarm_description/CMakeFiles/xarm_description_uninstall.dir
-/home/fectec/X-ARM_VisualServoing/ros2_ws/build/xarm_description/CMakeFiles/test.dir
-/home/fectec/X-ARM_VisualServoing/ros2_ws/build/xarm_description/CMakeFiles/edit_cache.dir
-/home/fectec/X-ARM_VisualServoing/ros2_ws/build/xarm_description/CMakeFiles/rebuild_cache.dir
-/home/fectec/X-ARM_VisualServoing/ros2_ws/build/xarm_description/CMakeFiles/list_install_components.dir
-/home/fectec/X-ARM_VisualServoing/ros2_ws/build/xarm_description/CMakeFiles/install.dir
-/home/fectec/X-ARM_VisualServoing/ros2_ws/build/xarm_description/CMakeFiles/install/local.dir
-/home/fectec/X-ARM_VisualServoing/ros2_ws/build/xarm_description/CMakeFiles/install/strip.dir
