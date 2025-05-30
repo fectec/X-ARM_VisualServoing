@@ -21,7 +21,6 @@ source /opt/ros/humble/setup.bash
 
 # Install ROS2 package dependencies
 cd ros2_ws/src/
-sudo rosdep init
 rosdep update
 rosdep install --from-paths . --ignore-src --rosdistro humble -y
 
