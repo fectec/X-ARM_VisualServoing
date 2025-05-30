@@ -35,4 +35,4 @@ ros2 service call /xarm/set_mode xarm_msgs/srv/SetInt16 "{data: 0}"
 ros2 service call /xarm/set_state xarm_msgs/srv/SetInt16 "{data: 0}"
 
 # Launch MoveIt for robot control
-ros2 launch xarm_moveit_config ${ROBOT_TYPE}_moveit_realmove.launch.py robot_ip:=${ROBOT_IP} [add_gripper:=true]
+ros2 launch xarm_moveit_config ${ROBOT_TYPE}_moveit_realmove.launch.py robot_ip:=${ROBOT_IP} add_gripper:=true
