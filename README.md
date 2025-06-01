@@ -1,1 +1,1 @@
-# X-ARM_VisualServoing
+# X-ARM Visual Servoing
