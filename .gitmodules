@@ -2,3 +2,8 @@
 	path = ros2_ws/src/xarm_ros2
 	url = https://github.com/xArm-Developer/xarm_ros2.git
 	branch = humble
+[submodule "ros2_ws/src/xarm_api"]
+	path = ros2_ws/src/azure_kinect_ros2_driver
+	url = https://github.com/ckennedy2050/Azure_Kinect_ROS2_Driver.git
+	branch = main
+
