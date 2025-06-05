@@ -14,9 +14,15 @@ from rclpy.parameter import Parameter
 from rcl_interfaces.msg import SetParametersResult
 
 from sensor_msgs.msg import Image, PointCloud2, PointField
+from std_msgs.msg import Header
 from std_srvs.srv import Trigger
 from geometry_msgs.msg import Point
 import sensor_msgs_py.point_cloud2 as pc2
+
+from tf2_ros import TransformBroadcaster
+from geometry_msgs.msg import TransformStamped
+
+
 
 # Open3D imports
 try:
@@ -41,7 +47,7 @@ class PointCloudGeneratorNode(Node):
     """
     
     def __init__(self):
-        super().__init__('point_cloud_generator')
+        super().__init__('pointcloud_generator_node')
         
         # Declare parameters
         self.declare_parameter('camera_intrinsics_file', '')
@@ -54,6 +60,23 @@ class PointCloudGeneratorNode(Node):
         self.declare_parameter('outlier_removal', True) # Remove outliers
         self.declare_parameter('statistical_outlier_nb_neighbors', 20)
         self.declare_parameter('statistical_outlier_std_ratio', 2.0)
+        
+        # Camera intrinsic parameters (as fallback or direct use)
+        self.declare_parameter('use_intrinsics_from_params', False)
+        self.declare_parameter('image_width', 2048)
+        self.declare_parameter('image_height', 1536)
+        self.declare_parameter('fx', 897.43423)
+        self.declare_parameter('fy', 907.31646)
+        self.declare_parameter('cx', 1048.95001)
+        self.declare_parameter('cy', 765.7388)
+        self.declare_parameter('camera_frame_id', 'camera_color_optical_frame')
+        
+        # Distortion parameters (optional)
+        self.declare_parameter('k1', 0.017184)
+        self.declare_parameter('k2', -0.019966)
+        self.declare_parameter('p1', -0.000088)
+        self.declare_parameter('p2', 0.002199)
+        self.declare_parameter('k3', 0.000000)
         
         # Get parameters
         self.intrinsics_file = self.get_parameter('camera_intrinsics_file').value
@@ -107,12 +130,21 @@ class PointCloudGeneratorNode(Node):
             10
         )
         
+        # Create point cloud timer publisher
+        self.pointcloud_timer = self.create_timer(
+            1.0 / self.publish_rate,
+            self.generate_pointcloud
+        )
+
         # Create service for manual point cloud generation
         self.generate_service = self.create_service(
             Trigger,
             'generate_pointcloud',
             self.generate_pointcloud_callback
         )
+
+        # Create TF broadcaster for point cloud frame
+        self.tf_broadcaster = TransformBroadcaster(self)
         
         # Timer for auto generation
         if self.auto_generate:
@@ -128,8 +160,62 @@ class PointCloudGeneratorNode(Node):
         if not OPEN3D_AVAILABLE:
             self.get_logger().warn("Open3D not available - using basic point cloud generation")
 
+    def publish_camera_tf(self):
+        """Publish camera transform."""
+        t = TransformStamped()
+        t.header.stamp = self.get_clock().now().to_msg()
+        t.header.frame_id = 'camera_link'  # Frame padre
+        t.child_frame_id = 'camera_color_optical_frame'
+        
+        # Transform de identidad (sin rotación ni traslación)
+        t.transform.translation.x = 0.0
+        t.transform.translation.y = 0.0
+        t.transform.translation.z = 0.0
+        t.transform.rotation.x = 0.0
+        t.transform.rotation.y = 0.0
+        t.transform.rotation.z = 0.0
+        t.transform.rotation.w = 1.0
+        
+        self.tf_broadcaster.sendTransform(t)
+    
     def load_camera_intrinsics(self):
-        """Load camera intrinsics from file or use default values."""
+        """Load camera intrinsics from file or parameters."""
+        # Check if we should use parameters directly
+        use_params = self.get_parameter('use_intrinsics_from_params').value
+        
+        if use_params:
+            # Use intrinsic parameters directly from launch file
+            try:
+                width = self.get_parameter('image_width').value
+                height = self.get_parameter('image_height').value
+                fx = self.get_parameter('fx').value
+                fy = self.get_parameter('fy').value
+                cx = self.get_parameter('cx').value
+                cy = self.get_parameter('cy').value
+                
+                # Create Open3D camera intrinsic object
+                if OPEN3D_AVAILABLE:
+                    self.camera_intrinsic = o3d.camera.PinholeCameraIntrinsic(
+                        width, height, fx, fy, cx, cy
+                    )
+                
+                # Store parameters for manual calculation
+                self.fx, self.fy = fx, fy
+                self.cx, self.cy = cx, cy
+                self.image_width, self.image_height = width, height
+                self.camera_frame_id = self.get_parameter('camera_frame_id').value
+                
+                self.get_logger().info("Using camera intrinsics from parameters:")
+                self.get_logger().info(f"  Resolution: {width}x{height}")
+                self.get_logger().info(f"  fx: {fx:.2f}, fy: {fy:.2f}")
+                self.get_logger().info(f"  cx: {cx:.2f}, cy: {cy:.2f}")
+                return
+                
+            except Exception as e:
+                self.get_logger().error(f"Failed to load intrinsics from parameters: {e}")
+                self.get_logger().warn("Falling back to file or defaults")
+        
+        # Try to load from file
         if self.intrinsics_file and os.path.exists(self.intrinsics_file):
             try:
                 # Determine file type by extension
@@ -137,6 +223,11 @@ class PointCloudGeneratorNode(Node):
                 
                 if file_ext in ['.yaml', '.yml']:
                     # Load YAML format (OpenCV calibration format)
+                    if not YAML_AVAILABLE:
+                        self.get_logger().error("PyYAML not available, cannot load YAML file")
+                        self.set_default_intrinsics()
+                        return
+                        
                     import yaml
                     with open(self.intrinsics_file, 'r') as f:
                         calibration_data = yaml.safe_load(f)
@@ -200,6 +291,7 @@ class PointCloudGeneratorNode(Node):
                 self.fx, self.fy = fx, fy
                 self.cx, self.cy = cx, cy
                 self.image_width, self.image_height = width, height
+                self.camera_frame_id = self.get_parameter('camera_frame_id').value
                 
                 self.get_logger().info(f"Successfully loaded camera intrinsics from {self.intrinsics_file}")
                 
@@ -208,8 +300,31 @@ class PointCloudGeneratorNode(Node):
                 self.get_logger().error(f"File format should be YAML (OpenCV) or JSON")
                 self.set_default_intrinsics()
         else:
-            self.get_logger().warn("No intrinsics file provided, using default Azure Kinect values")
-            self.set_default_intrinsics()
+            # Use parameter values as fallback
+            self.get_logger().warn("No intrinsics file found, using parameter values as fallback")
+            try:
+                width = self.get_parameter('image_width').value
+                height = self.get_parameter('image_height').value
+                fx = self.get_parameter('fx').value
+                fy = self.get_parameter('fy').value
+                cx = self.get_parameter('cx').value
+                cy = self.get_parameter('cy').value
+                
+                if OPEN3D_AVAILABLE:
+                    self.camera_intrinsic = o3d.camera.PinholeCameraIntrinsic(
+                        width, height, fx, fy, cx, cy
+                    )
+                
+                self.fx, self.fy = fx, fy
+                self.cx, self.cy = cx, cy
+                self.image_width, self.image_height = width, height
+                self.camera_frame_id = self.get_parameter('camera_frame_id').value
+                
+                self.get_logger().info("Using fallback intrinsics from parameters")
+                
+            except Exception as e:
+                self.get_logger().error(f"Failed to load fallback parameters: {e}")
+                self.set_default_intrinsics()
 
     def set_default_intrinsics(self):
         """Set default Azure Kinect DK intrinsics."""
@@ -408,8 +523,10 @@ class PointCloudGeneratorNode(Node):
             if len(points) == 0:
                 return
             
-            # Create PointCloud2 message
-            header = self.rgb_image if hasattr(self, 'rgb_image') else None
+            # Create proper header
+            header = Header()
+            header.stamp = self.get_clock().now().to_msg()
+            header.frame_id = getattr(self, 'camera_frame_id', 'camera_color_optical_frame')
             
             # Create point cloud data with RGB
             cloud_data = []
@@ -432,23 +549,23 @@ class PointCloudGeneratorNode(Node):
                 PointField(name='rgb', offset=12, datatype=PointField.UINT32, count=1),
             ]
             
-            # Create PointCloud2 message
+            # Create PointCloud2 message with proper header
             pc2_msg = pc2.create_cloud(
-                header=None,  # Will be set below
+                header=header,
                 fields=fields,
                 points=cloud_data
             )
             
-            # Set header
-            pc2_msg.header.stamp = self.get_clock().now().to_msg()
-            pc2_msg.header.frame_id = 'camera_color_optical_frame'  # Adjust as needed
-            
             self.pointcloud_pub.publish(pc2_msg)
+
+            self.publish_camera_tf()
             
             self.get_logger().debug(f"Published point cloud with {len(points)} points")
             
         except Exception as e:
             self.get_logger().error(f"Error publishing point cloud: {e}")
+            import traceback
+            self.get_logger().error(f"Traceback: {traceback.format_exc()}")
 
     def parameter_callback(self, params):
         """Handle parameter updates."""
