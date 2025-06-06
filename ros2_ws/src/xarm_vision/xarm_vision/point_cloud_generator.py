@@ -36,18 +36,18 @@ class PointCloudGenerator(Node):
         super().__init__('point_cloud_generator')
         
         # Declare parameters
-        self.declare_parameter('update_rate', 10.0)                    # Hz
+        self.declare_parameter('update_rate', 30.0)                    # Hz
         self.declare_parameter('camera_intrinsics_file', '')           
         self.declare_parameter('depth_scale', 1000.0)                  # Convert mm to meters
         self.declare_parameter('voxel_size', 0.002)                   
         
-        self.declare_parameter('tf_x', 0.2)       
-        self.declare_parameter('tf_y', 0.0)  
-        self.declare_parameter('tf_z', 0.5)  
-        self.declare_parameter('tf_qx', 0.0)
+        self.declare_parameter('tf_x', -0.236)       
+        self.declare_parameter('tf_y', -0.359)  
+        self.declare_parameter('tf_z', 0.1235)  
+        self.declare_parameter('tf_qx', -0.7068252)
         self.declare_parameter('tf_qy', 0.0)
         self.declare_parameter('tf_qz', 0.0)
-        self.declare_parameter('tf_qw', 1.0)
+        self.declare_parameter('tf_qw', 0.7073883)
         
         # Retrieve parameters
         self.update_rate = self.get_parameter('update_rate').value
@@ -197,12 +197,9 @@ class PointCloudGenerator(Node):
             )
             
             # Transform to ROS coordinate system
-            # Camera convention:    X-right, Y-down, Z-forward
-            # ROS convention:       X-forward, Y-left, Z-up
-            # This flips Y and Z axes to match ROS standards
             pcd.transform([[1, 0, 0, 0], 
-                          [0, -1, 0, 0], 
-                          [0, 0, -1, 0], 
+                          [0, 1, 0, 0], 
+                          [0, 0, 1, 0], 
                           [0, 0, 0, 1]])
             
             if len(pcd.points) > 0:
