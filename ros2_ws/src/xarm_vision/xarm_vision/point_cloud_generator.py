@@ -236,7 +236,12 @@ class PointCloudGenerator(Node):
             rgb = (int(colors[i][0] * 255) << 16 | 
                    int(colors[i][1] * 255) << 8 | 
                    int(colors[i][2] * 255))
-            cloud_data.append([points[i][0], points[i][1], points[i][2], rgb])
+            cloud_data.append([
+                float(points[i][0]), 
+                float(points[i][1]), 
+                float(points[i][2]), 
+                int(rgb)
+            ])
         
         # Define fields
         fields = [
