@@ -7,6 +7,11 @@ image_segmentation_node:
     depth_topic: "/k4a/depth_to_rgb/image_raw"
     use_compressed: false
 
+    # Alternative HSV ranges for common objects:
+    # Green objects: hue_low: 40, hue_high: 80, sat_low: 50, sat_high: 255, val_low: 50, val_high: 255
+    # Red objects: hue_low: 0, hue_high: 10, sat_low: 100, sat_high: 255, val_low: 100, val_high: 255
+    # Blue objects: hue_low: 100, hue_high: 130, sat_low: 50, sat_high: 255, val_low: 50, val_high: 255
+
     hsv_hue_low: 0
     hsv_hue_high: 179
     hsv_saturation_low: 0
@@ -35,28 +40,3 @@ point_cloud_generator_node:
     tf_qy: 0.0
     tf_qz: 0.0
     tf_qw: 1.0
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Alternative HSV ranges for common objects:
-# Green objects: hue_low: 40, hue_high: 80, sat_low: 50, sat_high: 255, val_low: 50, val_high: 255
-# Red objects: hue_low: 0, hue_high: 10, sat_low: 100, sat_high: 255, val_low: 100, val_high: 255
-# Blue objects: hue_low: 100, hue_high: 130, sat_low: 50, sat_high: 255, val_low: 50, val_high: 255
