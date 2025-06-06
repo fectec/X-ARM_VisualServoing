@@ -6,7 +6,7 @@ package_name = 'xarm_vision'
 
 setup(
     name=package_name,
-    version='0.0.0',
+    version='0.1.0',
     packages=find_packages(exclude=['test']),
     data_files=[
         ('share/ament_index/resource_index/packages',
@@ -15,7 +15,7 @@ setup(
         (os.path.join('share', package_name, 'config'),
             glob(os.path.join('config', '*'))),
         (os.path.join('share', package_name, 'launch'),
-            glob(os.path.join('launch', '*.launch.py'))),  # Importante: *.launch.py
+            glob(os.path.join('launch', '*.launch.py'))),
     ],
     install_requires=['setuptools'],
     zip_safe=True,

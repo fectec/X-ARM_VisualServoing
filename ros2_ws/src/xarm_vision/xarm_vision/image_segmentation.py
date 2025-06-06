@@ -13,42 +13,41 @@ from rcl_interfaces.msg import SetParametersResult
 
 from sensor_msgs.msg import Image, CompressedImage
 
-class ImageSegmentationNode(Node):
+class ImageSegmentation(Node):
     """
     Performs image segmentation using color and depth filtering.
     Segments objects from RGB-D camera data using HSV color ranges and depth thresholds.
     Publishes various masks and segmented images for downstream processing.
     """
     def __init__(self):
-        super().__init__('image_segmentation_node')
+        super().__init__('image_segmentation')
 
         # Declare parameters
-        self.declare_parameter('update_rate', 30.0)  # Hz
+        self.declare_parameter('update_rate', 30.0)                     # Hz
         self.declare_parameter('debug_view', True)
-        
-        # HSV filtering parameters (for green by default)
-        self.declare_parameter('hsv_hue_low', 0)      # For black objects
-        self.declare_parameter('hsv_hue_high', 179)   # Full hue range for black
-        self.declare_parameter('hsv_saturation_low', 0)
-        self.declare_parameter('hsv_saturation_high', 255)
-        self.declare_parameter('hsv_value_low', 0)
-        self.declare_parameter('hsv_value_high', 50)  # Low value for black
-        
-        # Depth filtering parameters (in mm)
-        self.declare_parameter('depth_low', 250)  # 25cm
-        self.declare_parameter('depth_high', 350)  # 35cm
-        self.declare_parameter('depth_scale', 1.0)  # Scale factor for depth values
-        self.declare_parameter('auto_convert_depth', True)  # Auto convert float to uint16
-        
-        # Connected components parameters
-        self.declare_parameter('min_component_area', 100)
-        self.declare_parameter('connectivity', 8)  # 4 or 8
-        self.declare_parameter('filter_largest_component', True)
-        
+
         # Input topic selection
         self.declare_parameter('rgb_topic', '/k4a/rgb/image_raw')
         self.declare_parameter('depth_topic', '/k4a/depth_to_rgb/image_raw')
         self.declare_parameter('use_compressed', False)
+        
+        # HSV filtering parameters 
+        self.declare_parameter('hsv_hue_low', 0)                        # For black objects
+        self.declare_parameter('hsv_hue_high', 179)                     # Full hue range for black
+        self.declare_parameter('hsv_saturation_low', 0)
+        self.declare_parameter('hsv_saturation_high', 255)
+        self.declare_parameter('hsv_value_low', 0)
+        self.declare_parameter('hsv_value_high', 50)                    # Low value for black
+        
+        # Depth filtering parameters 
+        self.declare_parameter('depth_low', 250)                        # mm                        
+        self.declare_parameter('depth_high', 800)                       # mm
+        self.declare_parameter('depth_scale', 1.0)                      # Scale factor for depth values
+        
+        # Connected components parameters
+        self.declare_parameter('min_component_area', 1000)
+        self.declare_parameter('connectivity', 8) 
+        self.declare_parameter('filter_largest_component', True)
 
         # Retrieve parameters
         self.update_rate = self.get_parameter('update_rate').value
@@ -64,7 +63,6 @@ class ImageSegmentationNode(Node):
         self.depth_low = self.get_parameter('depth_low').value
         self.depth_high = self.get_parameter('depth_high').value
         self.depth_scale = self.get_parameter('depth_scale').value
-        self.auto_convert_depth = self.get_parameter('auto_convert_depth').value
         
         self.min_component_area = self.get_parameter('min_component_area').value
         self.connectivity = self.get_parameter('connectivity').value
@@ -82,24 +80,23 @@ class ImageSegmentationNode(Node):
         
         # Immediately validate the initial values
         init_params = [
-            Parameter('update_rate', Parameter.Type.DOUBLE, self.update_rate),
-            Parameter('debug_view', Parameter.Type.BOOL, self.debug_view),
-            Parameter('hsv_hue_low', Parameter.Type.INTEGER, self.hsv_hue_low),
-            Parameter('hsv_hue_high', Parameter.Type.INTEGER, self.hsv_hue_high),
-            Parameter('hsv_saturation_low', Parameter.Type.INTEGER, self.hsv_saturation_low),
-            Parameter('hsv_saturation_high', Parameter.Type.INTEGER, self.hsv_saturation_high),
-            Parameter('hsv_value_low', Parameter.Type.INTEGER, self.hsv_value_low),
-            Parameter('hsv_value_high', Parameter.Type.INTEGER, self.hsv_value_high),
-            Parameter('depth_low', Parameter.Type.INTEGER, self.depth_low),
-            Parameter('depth_high', Parameter.Type.INTEGER, self.depth_high),
-            Parameter('depth_scale', Parameter.Type.DOUBLE, self.depth_scale),
-            Parameter('auto_convert_depth', Parameter.Type.BOOL, self.auto_convert_depth),
-            Parameter('min_component_area', Parameter.Type.INTEGER, self.min_component_area),
-            Parameter('connectivity', Parameter.Type.INTEGER, self.connectivity),
-            Parameter('filter_largest_component', Parameter.Type.BOOL, self.filter_largest_component),
-            Parameter('rgb_topic', Parameter.Type.STRING, self.rgb_topic),
-            Parameter('depth_topic', Parameter.Type.STRING, self.depth_topic),
-            Parameter('use_compressed', Parameter.Type.BOOL, self.use_compressed),
+            Parameter('update_rate',                Parameter.Type.DOUBLE,  self.update_rate),
+            Parameter('debug_view',                 Parameter.Type.BOOL,    self.debug_view),
+            Parameter('hsv_hue_low',                Parameter.Type.INTEGER, self.hsv_hue_low),
+            Parameter('hsv_hue_high',               Parameter.Type.INTEGER, self.hsv_hue_high),
+            Parameter('hsv_saturation_low',         Parameter.Type.INTEGER, self.hsv_saturation_low),
+            Parameter('hsv_saturation_high',        Parameter.Type.INTEGER, self.hsv_saturation_high),
+            Parameter('hsv_value_low',              Parameter.Type.INTEGER, self.hsv_value_low),
+            Parameter('hsv_value_high',             Parameter.Type.INTEGER, self.hsv_value_high),
+            Parameter('depth_low',                  Parameter.Type.INTEGER, self.depth_low),
+            Parameter('depth_high',                 Parameter.Type.INTEGER, self.depth_high),
+            Parameter('depth_scale',                Parameter.Type.DOUBLE,  self.depth_scale),
+            Parameter('min_component_area',         Parameter.Type.INTEGER, self.min_component_area),
+            Parameter('connectivity',               Parameter.Type.INTEGER, self.connectivity),
+            Parameter('filter_largest_component',   Parameter.Type.BOOL,    self.filter_largest_component),
+            Parameter('rgb_topic',                  Parameter.Type.STRING,  self.rgb_topic),
+            Parameter('depth_topic',                Parameter.Type.STRING,  self.depth_topic),
+            Parameter('use_compressed',             Parameter.Type.BOOL,    self.use_compressed),
         ]
         
         result: SetParametersResult = self.parameter_callback(init_params)
@@ -177,8 +174,6 @@ class ImageSegmentationNode(Node):
             )
         
         self.get_logger().info("ImageSegmentation Node Started.")
-        self.get_logger().info(f"Subscribing to RGB topic: {self.rgb_topic}")
-        self.get_logger().info(f"Subscribing to Depth topic: {self.depth_topic}")
 
     def rgb_image_callback(self, msg) -> None:
         """Callback to convert RGB image from ROS format to OpenCV."""
@@ -204,9 +199,8 @@ class ImageSegmentationNode(Node):
             if self.depth_image.dtype == np.float32:
                 # Image is in meters as float32, convert to millimeters as uint16
                 self.depth_image = (self.depth_image * 1000.0).astype(np.uint16)
-                self.get_logger().debug("Converted depth from float32 (meters) to uint16 (mm)")
             elif self.depth_image.dtype != np.uint16:
-                self.get_logger().warn(f"Unexpected depth format: {self.depth_image.dtype}")
+                self.get_logger().warn(f"Unexpected depth format: {self.depth_image.dtype}.")
                 
         except CvBridgeError as e:
             self.get_logger().error(f"Depth CvBridgeError: {e}")
@@ -219,18 +213,6 @@ class ImageSegmentationNode(Node):
             return
         
         try:
-            # Debug: Check depth image statistics
-            non_zero_mask = self.depth_image > 0
-            if np.any(non_zero_mask):
-                min_depth = np.min(self.depth_image[non_zero_mask])
-                max_depth = np.max(self.depth_image[non_zero_mask])
-                mean_depth = np.mean(self.depth_image[non_zero_mask])
-                self.get_logger().info(
-                    f"Depth stats - Min: {min_depth}, Max: {max_depth}, Mean: {mean_depth:.1f}, "
-                    f"Scale: {self.depth_scale}, Range: [{self.depth_low}, {self.depth_high}]",
-                    throttle_duration_sec=2.0
-                )
-            
             # Apply depth scale if needed
             scaled_depth = (self.depth_image * self.depth_scale).astype(np.uint16)
             
@@ -246,16 +228,7 @@ class ImageSegmentationNode(Node):
             
             # Create depth mask with scaled values
             depth_mask = cv.inRange(scaled_depth, self.depth_low, self.depth_high)
-            
-            # For debugging: count pixels in range
-            depth_pixels_in_range = np.sum(depth_mask > 0)
-            total_valid_pixels = np.sum(self.depth_image > 0)
-            if total_valid_pixels > 0:
-                self.get_logger().debug(
-                    f"Depth mask: {depth_pixels_in_range}/{total_valid_pixels} pixels "
-                    f"({100*depth_pixels_in_range/total_valid_pixels:.1f}%) in range"
-                )
-            
+
             # Combine masks
             combined_mask = cv.bitwise_and(hsv_mask, depth_mask)
             
@@ -434,19 +407,13 @@ class ImageSegmentationNode(Node):
                     return SetParametersResult(successful=False, reason="filter_largest_component must be a boolean.")
                 self.filter_largest_component = value
                 self.get_logger().info(f"filter_largest_component updated: {value}.")
-            
+
             elif name in ('rgb_topic', 'depth_topic'):
                 if not isinstance(value, str) or not value:
                     return SetParametersResult(successful=False, reason=f"{name} must be a non-empty string.")
                 setattr(self, name, value)
                 self.get_logger().info(f"{name} updated: {value}.")
                 self.get_logger().warn("Topic changes require node restart to take effect.")
-            
-            elif name == 'auto_convert_depth':
-                if not isinstance(value, bool):
-                    return SetParametersResult(successful=False, reason="auto_convert_depth must be a boolean.")
-                self.auto_convert_depth = value
-                self.get_logger().info(f"auto_convert_depth updated: {value}.")
             
             elif name == 'use_compressed':
                 if not isinstance(value, bool):
@@ -466,7 +433,7 @@ def main(args=None):
     rclpy.init(args=args)
     
     try:
-        node = ImageSegmentationNode()
+        node = ImageSegmentation()
     except Exception as e:
         print(f"[FATAL] ImageSegmentation failed to initialize: {e}.", file=sys.stderr)
         rclpy.shutdown()
