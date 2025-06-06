@@ -10,7 +10,7 @@ You will need <a href="https://docs.ros.org/en/humble/Installation.html" target=
 
 After cloning the repository, fetch the required submodules:
 
-- **xarm_ros2**: ROS2 driver for UFACTORY xArm robotic manipulators.
+- **xarm_ros2**: ROS2 driver for UFACTORY X-ARM robotic manipulators.
 - **azure_kinect_ros2_driver**: ROS2 driver for Azure Kinect sensor data.
 
 ```bash
