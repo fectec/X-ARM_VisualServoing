@@ -1,38 +1,25 @@
-# Build and install
+# ROS 2 workspace
 build/
 install/
 log/
 log_latest_build/
+*.db
+*.log
+*.launch.pyc
+*.repos
 
-# CMake
+# CMake & build system
 CMakeLists.txt.user
 CMakeCache.txt
 Makefile
 cmake_install.cmake
-
-# IDE
-.vscode/
-.idea/
 
 # Python bytecode
 __pycache__/
 *.py[cod]
 *$py.class
 
-# Backup and swap files
-*.swp
-*.bak
-*.tmp
-*.temp
-
-# ROS 2
-*.db
-*.log
-*.dSYM/
-*.launch.pyc
-*.repos
-
-# Secrets and environments
+# Python virtual environments
 .venv/
 venv/
 env/
@@ -41,17 +28,36 @@ env.bak/
 venv.bak/
 .env
 
-# Catkin (mixed workspace)
+# IDE and editor settings
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Swap, backup, and temp files
+*.swp
+*.bak
+*.tmp
+*.temp
+
+# Catkin (for mixed workspaces)
 devel/
 catkin_make/
 catkin_build/
 
-# Test and coverage
+# Test outputs and coverage
 .coverage
 .pytest_cache/
-.cache
+.cache/
 htmlcov/
+nosetests.xml
+coverage.xml
+test-results/
 
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
+
+# Other common
+*.DS_Store
+Thumbs.db
