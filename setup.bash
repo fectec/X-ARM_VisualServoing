@@ -1,19 +1,19 @@
 #!/bin/bash
 
-# X-ARM ROS2 Submodule Setup
+# X-ARM + Azure Kinect ROS2 Setup
 # Run this script after cloning the repository
 
 # Navigate to your repository root (adjust the path as needed)
 cd ~/X-ARM_VisualServoing
 
-# Initialize and update submodules
-# (this fetches the xarm_ros2 submodule located in ros2_ws/src/xarm_ros2)
+# Fetch all submodules (xarm_ros2 + azure_kinect_ros2_driver)
 git submodule update --init --recursive
 
-# Ensure the xarm_ros2 submodule is on the correct branch for the ROS2 distro
+# Checkout correct branches
 git -C ros2_ws/src/xarm_ros2 checkout humble
+git -C ros2_ws/src/azure_kinect_ros2_driver checkout main
 
-# Update submodule to latest commit on the humble branch
+# Update submodules to latest
 git submodule update --remote
 
 # Source ROS2 environment
