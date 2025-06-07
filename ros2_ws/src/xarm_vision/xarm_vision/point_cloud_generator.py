@@ -187,7 +187,6 @@ class PointCloudGenerator(Node):
             rgbd_image = o3d.geometry.RGBDImage.create_from_color_and_depth(
                 o3d_color, o3d_depth,
                 depth_scale=self.depth_scale,
-                depth_trunc=3.0,  
                 convert_rgb_to_intensity=False
             )
             
