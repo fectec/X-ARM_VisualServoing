@@ -1,5 +1,9 @@
 # X-ARM Visual Servoing
 
+<p align="justify">
+Developed for the Computer Vision and Machine Learning modules in the undergraduate course <b>"Intelligent Robotics Implementation."</b> This project is based on the work of Gustavo De Los Ríos Alatorre at the Instituto Tecnológico y de Estudios Superiores de Monterrey, Campus Monterrey, School of Engineering and Sciences, titled <a href="https://github.com/GustavoDLRA/3D-SemiDeformable-ObjectTracking" target="_blank">"3-D Detection & Tracking for Semi-Deformable Objects"</a>, developed as a master's thesis submitted in partial fulfillment of the requirements for the degree of Master of Science in Computer Science, Monterrey, Nuevo León, May 2024.
+</p>
+
 ## Execution Guide
 
 <p align="justify">
