@@ -34,7 +34,7 @@ class PointCloudsAlignmentScaling(Node):
         super().__init__('point_clouds_alignment_scaling')
         
         # Declare parameters
-        self.declare_parameter('update_rate', 10.0)                    # Hz
+        self.declare_parameter('update_rate', 30.0)                    # Hz
         self.declare_parameter('canonical_model_path', '')             # Path to canonical model PLY file
         self.declare_parameter('voxel_size', 0.002)                   
         self.declare_parameter('alignment_percentile', 98.0)           # Percentile for feature identification
@@ -76,14 +76,14 @@ class PointCloudsAlignmentScaling(Node):
             PointCloud2,
             'pointcloud/segmented_object',
             self.pointcloud_callback,
-            qos.qos_profile_sensor_data
+            10
         )
         
         # Fused aligned+scaled model publisher
         self.aligned_scaled_pub = self.create_publisher(
             PointCloud2,
             'pointcloud/aligned_scaled_model',
-            qos.qos_profile_sensor_data
+            10
         )
         
         # Create TF broadcaster

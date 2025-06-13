@@ -100,37 +100,37 @@ class ImageSegmentation(Node):
         self.hsv_mask_pub = self.create_publisher(
             Image,
             'segmentation/hsv_mask',
-            10
+            qos.qos_profile_sensor_data
         )
         
         self.depth_mask_pub = self.create_publisher(
             Image,
             'segmentation/depth_mask',
-            10
+            qos.qos_profile_sensor_data
         )
         
         self.combined_mask_pub = self.create_publisher(
             Image,
             'segmentation/combined_mask',
-            10
+            qos.qos_profile_sensor_data
         )
         
         self.cleaned_mask_pub = self.create_publisher(
             Image,
             'segmentation/cleaned_mask',
-            10
+            qos.qos_profile_sensor_data
         )
         
         self.result_rgb_pub = self.create_publisher(
             Image,
             'segmentation/result_rgb',
-            10
+            qos.qos_profile_sensor_data
         )
         
         self.result_depth_pub = self.create_publisher(
             Image,
             'segmentation/result_depth',
-            10
+            qos.qos_profile_sensor_data
         )
 
         self.debug_viz_pub = self.create_publisher(
