@@ -36,10 +36,11 @@ class PointCloudGenerator(Node):
         super().__init__('point_cloud_generator')
         
         # Declare parameters
-        self.declare_parameter('update_rate', 30.0)                    # Hz
+        self.declare_parameter('update_rate', 10.0)                    # Hz
         self.declare_parameter('camera_intrinsics_file', '')           
         self.declare_parameter('depth_scale', 1000.0)                  # Convert mm to meters
-        self.declare_parameter('voxel_size', 0.002)                   
+        self.declare_parameter('voxel_size', 0.002)
+        self.declare_parameter('xarm_integration', True)                   
         
         self.declare_parameter('tf_x', -0.236)       
         self.declare_parameter('tf_y', -0.359)  
@@ -54,6 +55,7 @@ class PointCloudGenerator(Node):
         self.intrinsics_file = self.get_parameter('camera_intrinsics_file').value
         self.depth_scale = self.get_parameter('depth_scale').value
         self.voxel_size = self.get_parameter('voxel_size').value
+        self.xarm_integration = self.get_parameter('xarm_integration').value
         
         self.tf_x = self.get_parameter('tf_x').value
         self.tf_y = self.get_parameter('tf_y').value
@@ -116,7 +118,12 @@ class PointCloudGenerator(Node):
         self.pointcloud_pub = self.create_publisher(
             PointCloud2,
             'pointcloud/segmented_object',
-            10
+            qos.QoSProfile(
+                reliability=qos.ReliabilityPolicy.RELIABLE,
+                durability=qos.DurabilityPolicy.VOLATILE,
+                history=qos.HistoryPolicy.KEEP_LAST,
+                depth=1
+            )
         )
         
         # Create TF broadcaster
@@ -249,8 +256,13 @@ class PointCloudGenerator(Node):
         """Publish TF transform for the camera frame."""
         t = TransformStamped()
         t.header.stamp = self.get_clock().now().to_msg()
-        t.header.frame_id = 'base_link'                  # XARM robot base
-        t.child_frame_id = 'camera_color_optical_frame'  # Kinect optical frame
+
+        if self.xarm_integration:
+            t.header.frame_id = 'link_base'  
+        else:
+            t.header.frame_id = 'base_link'  
+
+        t.child_frame_id = 'camera_color_optical_frame'   
         
         t.transform.translation.x = self.tf_x  
         t.transform.translation.y = self.tf_y  
