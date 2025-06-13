@@ -1,11 +1,9 @@
 image_segmentation_node:
   ros__parameters:
     update_rate: 60.0
-    debug_view: true
 
     rgb_topic: "/k4a/rgb/image_raw"
     depth_topic: "/k4a/depth_to_rgb/image_raw"
-    use_compressed: false
 
     hsv_hue_low: 0
     hsv_hue_high: 179

@@ -24,12 +24,10 @@ class ImageSegmentation(Node):
 
         # Declare parameters
         self.declare_parameter('update_rate', 30.0)                     # Hz
-        self.declare_parameter('debug_view', True)
 
         # Input topic selection
         self.declare_parameter('rgb_topic', '/k4a/rgb/image_raw')
         self.declare_parameter('depth_topic', '/k4a/depth_to_rgb/image_raw')
-        self.declare_parameter('use_compressed', False)
         
         # HSV filtering parameters 
         self.declare_parameter('hsv_hue_low', 0)                        # For black objects
@@ -49,7 +47,6 @@ class ImageSegmentation(Node):
 
         # Retrieve parameters
         self.update_rate = self.get_parameter('update_rate').value
-        self.debug_view = self.get_parameter('debug_view').value
         
         self.hsv_hue_low = self.get_parameter('hsv_hue_low').value
         self.hsv_hue_high = self.get_parameter('hsv_hue_high').value
@@ -66,7 +63,6 @@ class ImageSegmentation(Node):
         
         self.rgb_topic = self.get_parameter('rgb_topic').value
         self.depth_topic = self.get_parameter('depth_topic').value
-        self.use_compressed = self.get_parameter('use_compressed').value
         
         # Timer for periodic processing
         self.timer = self.create_timer(1.0 / self.update_rate, self.timer_callback)
@@ -77,7 +73,6 @@ class ImageSegmentation(Node):
         # Immediately validate the initial values
         init_params = [
             Parameter('update_rate',                Parameter.Type.DOUBLE,  self.update_rate),
-            Parameter('debug_view',                 Parameter.Type.BOOL,    self.debug_view),
             Parameter('hsv_hue_low',                Parameter.Type.INTEGER, self.hsv_hue_low),
             Parameter('hsv_hue_high',               Parameter.Type.INTEGER, self.hsv_hue_high),
             Parameter('hsv_saturation_low',         Parameter.Type.INTEGER, self.hsv_saturation_low),
@@ -90,7 +85,6 @@ class ImageSegmentation(Node):
             Parameter('connectivity',               Parameter.Type.INTEGER, self.connectivity),
             Parameter('rgb_topic',                  Parameter.Type.STRING,  self.rgb_topic),
             Parameter('depth_topic',                Parameter.Type.STRING,  self.depth_topic),
-            Parameter('use_compressed',             Parameter.Type.BOOL,    self.use_compressed),
         ]
         
         result: SetParametersResult = self.parameter_callback(init_params)
@@ -138,44 +132,33 @@ class ImageSegmentation(Node):
             'segmentation/result_depth',
             10
         )
-        
+
+        self.debug_viz_pub = self.create_publisher(
+            Image,
+            'segmentation/debug_visualization',
+            10
+        )
+
         # Create subscribers based on compression setting
-        if self.use_compressed:
-            self.create_subscription(
-                CompressedImage,
-                f"{self.rgb_topic}/compressed",
-                self.rgb_image_callback,
-                qos.qos_profile_sensor_data
-            )
-            self.create_subscription(
-                CompressedImage,
-                f"{self.depth_topic}/compressed",
-                self.depth_image_callback,
-                qos.qos_profile_sensor_data
-            )
-        else:
-            self.create_subscription(
-                Image,
-                self.rgb_topic,
-                self.rgb_image_callback,
-                qos.qos_profile_sensor_data
-            )
-            self.create_subscription(
-                Image,
-                self.depth_topic,
-                self.depth_image_callback,
-                qos.qos_profile_sensor_data
-            )
+        self.create_subscription(
+            Image,
+            self.rgb_topic,
+            self.rgb_image_callback,
+            qos.qos_profile_sensor_data
+        )
+        self.create_subscription(
+            Image,
+            self.depth_topic,
+            self.depth_image_callback,
+            qos.qos_profile_sensor_data
+        )
         
         self.get_logger().info("ImageSegmentation Node Started.")
 
     def rgb_image_callback(self, msg) -> None:
         """Callback to convert RGB image from ROS format to OpenCV."""
         try:
-            if self.use_compressed:
-                self.rgb_image = self.bridge.compressed_imgmsg_to_cv2(msg, desired_encoding='bgr8')
-            else:
-                self.rgb_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
+            self.rgb_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
         except CvBridgeError as e:
             self.get_logger().error(f"RGB CvBridgeError: {e}")
             return
@@ -183,12 +166,8 @@ class ImageSegmentation(Node):
     def depth_image_callback(self, msg) -> None:
         """Callback to convert depth image from ROS format to OpenCV."""
         try:
-            if self.use_compressed:
-                # For compressed depth, we need to handle the encoding properly
-                self.depth_image = self.bridge.compressed_imgmsg_to_cv2(msg, desired_encoding='passthrough')
-            else:
-                self.depth_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='passthrough')
-            
+            self.depth_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='passthrough')
+
             # Check depth image format and convert if necessary
             if self.depth_image.dtype == np.float32:
                 # Image is in meters as float32, convert to millimeters as uint16
@@ -241,12 +220,10 @@ class ImageSegmentation(Node):
             self.publish_image(result_rgb, self.result_rgb_pub, 'bgr8')
             self.publish_depth(result_depth, self.result_depth_pub)
             
-            # Debug visualization
-            if self.debug_view:
-                self.visualize_segmentation(
-                    self.rgb_image, hsv_mask, depth_mask, 
-                    combined_mask, cleaned_mask, result_rgb
-                )
+            self.visualize_segmentation(
+                self.rgb_image, hsv_mask, depth_mask, 
+                combined_mask, cleaned_mask, result_rgb
+            )
                 
         except Exception as e:
             self.get_logger().error(f"Error in timer_callback: {e}")
@@ -302,7 +279,6 @@ class ImageSegmentation(Node):
         # Resize images if needed
         def resize_to_viz(img, is_mask=False):
             if len(img.shape) == 2 and not is_mask:
-                # Depth image - normalize for visualization
                 normalized = cv.normalize(img, None, 0, 255, cv.NORM_MINMAX, cv.CV_8U)
                 img = cv.cvtColor(normalized, cv.COLOR_GRAY2BGR)
             elif is_mask:
@@ -317,7 +293,13 @@ class ImageSegmentation(Node):
         # Bottom row
         viz[480:960, 0:640] = resize_to_viz(combined_mask, True)
         viz[480:960, 640:1280] = resize_to_viz(cleaned_mask, True)
-        viz[480:960, 1280:1920] = resize_to_viz(result)
+        
+        # Create white background for result square and overlay the result
+        result_resized = resize_to_viz(result)
+        result_area = viz[480:960, 1280:1920]
+        result_area.fill(255)
+        mask = np.any(result_resized != [0, 0, 0], axis=2)
+        result_area[mask] = result_resized[mask]
         
         # Add labels
         cv.putText(viz, "Original RGB", (10, 30), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
@@ -325,11 +307,14 @@ class ImageSegmentation(Node):
         cv.putText(viz, "Depth Mask", (1290, 30), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
         cv.putText(viz, "Combined Mask", (10, 510), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
         cv.putText(viz, "Cleaned Mask", (650, 510), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-        cv.putText(viz, "Result", (1290, 510), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+        cv.putText(viz, "Result", (1290, 510), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
         
-        cv.namedWindow('Segmentation Debug', cv.WINDOW_NORMAL)
-        cv.imshow('Segmentation Debug', viz)
-        cv.waitKey(1)
+        # Publish the debug visualization
+        try:
+            debug_msg = self.bridge.cv2_to_imgmsg(viz, encoding='bgr8')
+            self.debug_viz_pub.publish(debug_msg)
+        except CvBridgeError as e:
+            self.get_logger().error(f"Error publishing debug visualization: {e}")    
 
     def parameter_callback(self, params: list[Parameter]) -> SetParametersResult:
         """Validates and applies updated node parameters."""
@@ -344,15 +329,7 @@ class ImageSegmentation(Node):
                 self.timer.cancel()
                 self.timer = self.create_timer(1.0 / self.update_rate, self.timer_callback)
                 self.get_logger().info(f"update_rate updated: {self.update_rate} Hz.")
-            
-            elif name == 'debug_view':
-                if not isinstance(value, bool):
-                    return SetParametersResult(successful=False, reason="debug_view must be a boolean.")
-                self.debug_view = value
-                if not self.debug_view:
-                    cv.destroyAllWindows()
-                self.get_logger().info(f"debug_view updated: {self.debug_view}.")
-            
+                     
             elif name in ('hsv_hue_low', 'hsv_hue_high'):
                 if not isinstance(value, int) or not (0 <= value <= 179):
                     return SetParametersResult(successful=False, reason=f"{name} must be an integer between 0-179.")
@@ -389,19 +366,11 @@ class ImageSegmentation(Node):
                 setattr(self, name, value)
                 self.get_logger().info(f"{name} updated: {value}.")
                 self.get_logger().warn("Topic changes require node restart to take effect.")
-            
-            elif name == 'use_compressed':
-                if not isinstance(value, bool):
-                    return SetParametersResult(successful=False, reason="use_compressed must be a boolean.")
-                self.use_compressed = value
-                self.get_logger().info(f"use_compressed updated: {value}.")
-                self.get_logger().warn("Compression setting changes require node restart to take effect.")
-        
+                
         return SetParametersResult(successful=True)
 
     def destroy_node(self):
-        if self.debug_view:
-            cv.destroyAllWindows()
+        cv.destroyAllWindows()
         super().destroy_node()
 
 def main(args=None):

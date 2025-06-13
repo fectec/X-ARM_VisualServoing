@@ -1,0 +1,537 @@
+commit 3641020195d0be44b5296fc2161dfc5b725c3698
+Author: Juan Félix <fectec151@gmail.com>
+Date:   Fri Jun 6 18:24:19 2025 -0600
+
+    experimental: change segmentation strategy
+
+diff --git a/ros2_ws/src/xarm_vision/config/segmentation_point_cloud_config.yaml b/ros2_ws/src/xarm_vision/config/segmentation_point_cloud_config.yaml
+index 68ba23d..1b189b0 100644
+--- a/ros2_ws/src/xarm_vision/config/segmentation_point_cloud_config.yaml
++++ b/ros2_ws/src/xarm_vision/config/segmentation_point_cloud_config.yaml
+@@ -1,42 +1,46 @@
+ image_segmentation_node:
+   ros__parameters:
+-    update_rate: 30.0    
++    update_rate: 60.0
+     debug_view: true
+-  
++
+     rgb_topic: "/k4a/rgb/image_raw"
+     depth_topic: "/k4a/depth_to_rgb/image_raw"
+     use_compressed: false
+ 
+-    # Alternative HSV ranges for common objects:
+-    # Green objects: hue_low: 40, hue_high: 80, sat_low: 50, sat_high: 255, val_low: 50, val_high: 255
+-    # Red objects: hue_low: 0, hue_high: 10, sat_low: 100, sat_high: 255, val_low: 100, val_high: 255
+-    # Blue objects: hue_low: 100, hue_high: 130, sat_low: 50, sat_high: 255, val_low: 50, val_high: 255
+-
+     hsv_hue_low: 0
+     hsv_hue_high: 179
+     hsv_saturation_low: 0
+     hsv_saturation_high: 255
+     hsv_value_low: 0
+-    hsv_value_high: 50
++    hsv_value_high: 100
++
++    depth_low: 200
++    depth_high: 430
++    depth_scale: 1.0
+ 
+-    depth_low: 250        
+-    depth_high: 800       
+-    depth_scale: 1.0      
++    gaussian_kernel_size: [9, 9]
++    gaussian_sigma: 5
++    grayscale_threshold: 5
++    morph_kernel_size: [3, 3]
++    hsv_erode_iterations: 5
++    depth_dilate_iterations: 100
+ 
+-    min_component_area: 1000
+-    connectivity: 8
+-    filter_largest_component: true
++    blob_min_threshold: 200
++    blob_max_threshold: 1000
++    blob_min_area: 50000
++    blob_max_area: 10000000
+ 
+ point_cloud_generator_node:
+   ros__parameters:
+-    update_rate: 30.0
+-    depth_scale: 1000.0      
+-    voxel_size: 0.002      
+-
+-    tf_x: 0.0
+-    tf_y: 0.0
+-    tf_z: 0.0
+-    tf_qx: 0.0
++    update_rate: 60.0
++
++    depth_scale: 1000.0                 
++    voxel_size: 0.002                    
++
++    tf_x: -0.236
++    tf_y: -0.359
++    tf_z: 0.1235
++    tf_qx: -0.7068252
+     tf_qy: 0.0
+     tf_qz: 0.0
+-    tf_qw: 1.0
+\ No newline at end of file
++    tf_qw: 0.7073883
+\ No newline at end of file
+diff --git a/ros2_ws/src/xarm_vision/xarm_vision/image_segmentation.py b/ros2_ws/src/xarm_vision/xarm_vision/image_segmentation.py
+index fc29c27..2056441 100644
+--- a/ros2_ws/src/xarm_vision/xarm_vision/image_segmentation.py
++++ b/ros2_ws/src/xarm_vision/xarm_vision/image_segmentation.py
+@@ -15,9 +15,7 @@ from sensor_msgs.msg import Image, CompressedImage
+ 
+ class ImageSegmentation(Node):
+     """
+-    Performs image segmentation using color and depth filtering.
+-    Segments objects from RGB-D camera data using HSV color ranges and depth thresholds.
+-    Publishes various masks and segmented images for downstream processing.
++    Performs image segmentation using color and depth filtering with blob detection.
+     """
+     def __init__(self):
+         super().__init__('image_segmentation')
+@@ -37,17 +35,26 @@ class ImageSegmentation(Node):
+         self.declare_parameter('hsv_saturation_low', 0)
+         self.declare_parameter('hsv_saturation_high', 255)
+         self.declare_parameter('hsv_value_low', 0)
+-        self.declare_parameter('hsv_value_high', 50)                    # Low value for black
++        self.declare_parameter('hsv_value_high', 100)                   # Low value for black
+         
+         # Depth filtering parameters 
+-        self.declare_parameter('depth_low', 250)                        # mm                        
+-        self.declare_parameter('depth_high', 800)                       # mm
++        self.declare_parameter('depth_low', 1)                          # mm                        
++        self.declare_parameter('depth_high', 430)                       # mm
+         self.declare_parameter('depth_scale', 1.0)                      # Scale factor for depth values
+         
+-        # Connected components parameters
+-        self.declare_parameter('min_component_area', 1000)
+-        self.declare_parameter('connectivity', 8) 
+-        self.declare_parameter('filter_largest_component', True)
++        # Image processing parameters
++        self.declare_parameter('gaussian_kernel_size', [9, 9])
++        self.declare_parameter('gaussian_sigma', 5)
++        self.declare_parameter('grayscale_threshold', 5)               
++        self.declare_parameter('morph_kernel_size', [3, 3])
++        self.declare_parameter('hsv_erode_iterations', 5)              
++        self.declare_parameter('depth_dilate_iterations', 50)          
++        
++        # Blob detector parameters
++        self.declare_parameter('blob_min_threshold', 240)
++        self.declare_parameter('blob_max_threshold', 1000)
++        self.declare_parameter('blob_min_area', 50000)                  
++        self.declare_parameter('blob_max_area', 10000000)
+ 
+         # Retrieve parameters
+         self.update_rate = self.get_parameter('update_rate').value
+@@ -64,9 +71,17 @@ class ImageSegmentation(Node):
+         self.depth_high = self.get_parameter('depth_high').value
+         self.depth_scale = self.get_parameter('depth_scale').value
+         
+-        self.min_component_area = self.get_parameter('min_component_area').value
+-        self.connectivity = self.get_parameter('connectivity').value
+-        self.filter_largest_component = self.get_parameter('filter_largest_component').value
++        self.gaussian_kernel_size = self.get_parameter('gaussian_kernel_size').value
++        self.gaussian_sigma = self.get_parameter('gaussian_sigma').value
++        self.grayscale_threshold = self.get_parameter('grayscale_threshold').value
++        self.morph_kernel_size = self.get_parameter('morph_kernel_size').value
++        self.hsv_erode_iterations = self.get_parameter('hsv_erode_iterations').value
++        self.depth_dilate_iterations = self.get_parameter('depth_dilate_iterations').value
++        
++        self.blob_min_threshold = self.get_parameter('blob_min_threshold').value
++        self.blob_max_threshold = self.get_parameter('blob_max_threshold').value
++        self.blob_min_area = self.get_parameter('blob_min_area').value
++        self.blob_max_area = self.get_parameter('blob_max_area').value
+         
+         self.rgb_topic = self.get_parameter('rgb_topic').value
+         self.depth_topic = self.get_parameter('depth_topic').value
+@@ -80,23 +95,30 @@ class ImageSegmentation(Node):
+         
+         # Immediately validate the initial values
+         init_params = [
+-            Parameter('update_rate',                Parameter.Type.DOUBLE,  self.update_rate),
+-            Parameter('debug_view',                 Parameter.Type.BOOL,    self.debug_view),
+-            Parameter('hsv_hue_low',                Parameter.Type.INTEGER, self.hsv_hue_low),
+-            Parameter('hsv_hue_high',               Parameter.Type.INTEGER, self.hsv_hue_high),
+-            Parameter('hsv_saturation_low',         Parameter.Type.INTEGER, self.hsv_saturation_low),
+-            Parameter('hsv_saturation_high',        Parameter.Type.INTEGER, self.hsv_saturation_high),
+-            Parameter('hsv_value_low',              Parameter.Type.INTEGER, self.hsv_value_low),
+-            Parameter('hsv_value_high',             Parameter.Type.INTEGER, self.hsv_value_high),
+-            Parameter('depth_low',                  Parameter.Type.INTEGER, self.depth_low),
+-            Parameter('depth_high',                 Parameter.Type.INTEGER, self.depth_high),
+-            Parameter('depth_scale',                Parameter.Type.DOUBLE,  self.depth_scale),
+-            Parameter('min_component_area',         Parameter.Type.INTEGER, self.min_component_area),
+-            Parameter('connectivity',               Parameter.Type.INTEGER, self.connectivity),
+-            Parameter('filter_largest_component',   Parameter.Type.BOOL,    self.filter_largest_component),
+-            Parameter('rgb_topic',                  Parameter.Type.STRING,  self.rgb_topic),
+-            Parameter('depth_topic',                Parameter.Type.STRING,  self.depth_topic),
+-            Parameter('use_compressed',             Parameter.Type.BOOL,    self.use_compressed),
++            Parameter('update_rate',                Parameter.Type.DOUBLE,          self.update_rate),
++            Parameter('debug_view',                 Parameter.Type.BOOL,            self.debug_view),
++            Parameter('hsv_hue_low',                Parameter.Type.INTEGER,         self.hsv_hue_low),
++            Parameter('hsv_hue_high',               Parameter.Type.INTEGER,         self.hsv_hue_high),
++            Parameter('hsv_saturation_low',         Parameter.Type.INTEGER,         self.hsv_saturation_low),
++            Parameter('hsv_saturation_high',        Parameter.Type.INTEGER,         self.hsv_saturation_high),
++            Parameter('hsv_value_low',              Parameter.Type.INTEGER,         self.hsv_value_low),
++            Parameter('hsv_value_high',             Parameter.Type.INTEGER,         self.hsv_value_high),
++            Parameter('depth_low',                  Parameter.Type.INTEGER,         self.depth_low),
++            Parameter('depth_high',                 Parameter.Type.INTEGER,         self.depth_high),
++            Parameter('depth_scale',                Parameter.Type.DOUBLE,          self.depth_scale),
++            Parameter('gaussian_kernel_size',       Parameter.Type.INTEGER_ARRAY,   self.gaussian_kernel_size),
++            Parameter('gaussian_sigma',             Parameter.Type.INTEGER,         self.gaussian_sigma),
++            Parameter('grayscale_threshold',        Parameter.Type.INTEGER,         self.grayscale_threshold),
++            Parameter('morph_kernel_size',          Parameter.Type.INTEGER_ARRAY,   self.morph_kernel_size),
++            Parameter('hsv_erode_iterations',       Parameter.Type.INTEGER,         self.hsv_erode_iterations),
++            Parameter('depth_dilate_iterations',    Parameter.Type.INTEGER,         self.depth_dilate_iterations),
++            Parameter('blob_min_threshold',         Parameter.Type.INTEGER,         self.blob_min_threshold),
++            Parameter('blob_max_threshold',         Parameter.Type.INTEGER,         self.blob_max_threshold),
++            Parameter('blob_min_area',              Parameter.Type.INTEGER,         self.blob_min_area),
++            Parameter('blob_max_area',              Parameter.Type.INTEGER,         self.blob_max_area),
++            Parameter('rgb_topic',                  Parameter.Type.STRING,          self.rgb_topic),
++            Parameter('depth_topic',                Parameter.Type.STRING,          self.depth_topic),
++            Parameter('use_compressed',             Parameter.Type.BOOL,            self.use_compressed),
+         ]
+         
+         result: SetParametersResult = self.parameter_callback(init_params)
+@@ -108,41 +130,44 @@ class ImageSegmentation(Node):
+         self.depth_image = None
+         self.bridge = CvBridge()
+         
++        # Create the blob detector object with configured parameters
++        self.configure_blob_detector()
++        
+         # Create publishers for various outputs
+         self.hsv_mask_pub = self.create_publisher(
+             Image,
+             'segmentation/hsv_mask',
+-            10
++            qos.qos_profile_sensor_data
+         )
+         
+         self.depth_mask_pub = self.create_publisher(
+             Image,
+             'segmentation/depth_mask',
+-            10
++            qos.qos_profile_sensor_data
+         )
+         
+         self.combined_mask_pub = self.create_publisher(
+             Image,
+             'segmentation/combined_mask',
+-            10
++            qos.qos_profile_sensor_data
+         )
+         
+         self.cleaned_mask_pub = self.create_publisher(
+             Image,
+             'segmentation/cleaned_mask',
+-            10
++            qos.qos_profile_sensor_data
+         )
+         
+         self.result_rgb_pub = self.create_publisher(
+             Image,
+             'segmentation/result_rgb',
+-            10
++            qos.qos_profile_sensor_data
+         )
+         
+         self.result_depth_pub = self.create_publisher(
+             Image,
+             'segmentation/result_depth',
+-            10
++            qos.qos_profile_sensor_data
+         )
+         
+         # Create subscribers based on compression setting
+@@ -190,14 +215,12 @@ class ImageSegmentation(Node):
+         """Callback to convert depth image from ROS format to OpenCV."""
+         try:
+             if self.use_compressed:
+-                # For compressed depth, we need to handle the encoding properly
+                 self.depth_image = self.bridge.compressed_imgmsg_to_cv2(msg, desired_encoding='passthrough')
+             else:
+                 self.depth_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='passthrough')
+             
+             # Check depth image format and convert if necessary
+             if self.depth_image.dtype == np.float32:
+-                # Image is in meters as float32, convert to millimeters as uint16
+                 self.depth_image = (self.depth_image * 1000.0).astype(np.uint16)
+             elif self.depth_image.dtype != np.uint16:
+                 self.get_logger().warn(f"Unexpected depth format: {self.depth_image.dtype}.")
+@@ -206,6 +229,50 @@ class ImageSegmentation(Node):
+             self.get_logger().error(f"Depth CvBridgeError: {e}")
+             return
+ 
++    def process_mask_with_morphology(self, image, mask):
++        """Process mask using morphological operations."""
++        # Apply mask to extract regions from original image
++        extracted_image = cv.bitwise_and(image, image, mask=mask)
++        
++        # Convert extracted regions to grayscale
++        gray_image = cv.cvtColor(extracted_image, cv.COLOR_BGR2GRAY)
++        
++        # Threshold grayscale image to binary image
++        _, binary_image = cv.threshold(gray_image, self.grayscale_threshold, 255, cv.THRESH_BINARY)
++        
++        # Apply only erosion to clean noise
++        kernel = np.ones(tuple(self.morph_kernel_size), np.uint8)
++        cleaned_image = cv.erode(binary_image, kernel, iterations=self.hsv_erode_iterations)
++        
++        return cleaned_image
++
++    def get_largest_blob_mask(self, binary_image):
++        """Detect blobs and return mask of the largest blob."""
++        # Detect blobs
++        keypoints = self.blob_detector.detect(binary_image)
++        
++        if not keypoints:
++            return np.zeros_like(binary_image)
++        
++        # Find the largest blob
++        largest_kp = max(keypoints, key=lambda kp: kp.size)
++        
++        # Create mask from largest blob
++        mask = np.zeros_like(binary_image)
++        
++        center = (int(largest_kp.pt[0]), int(largest_kp.pt[1]))
++        
++        # Instead of just drawing a circle, use contour detection to get actual blob shape
++        contours, _ = cv.findContours(binary_image, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
++        
++        # Find contour that contains the largest blob center
++        for contour in contours:
++            if cv.pointPolygonTest(contour, center, False) >= 0:
++                cv.drawContours(mask, [contour], -1, 255, -1)
++                break
++        
++        return mask
++
+     def timer_callback(self) -> None:
+         """Main processing loop for segmentation."""
+         # Check if both images have been received
+@@ -213,11 +280,18 @@ class ImageSegmentation(Node):
+             return
+         
+         try:
++            # Apply Gaussian blur to reduce noise
++            blurred_rgb = cv.GaussianBlur(
++                self.rgb_image,
++                tuple(self.gaussian_kernel_size),
++                self.gaussian_sigma
++            )
++            
+             # Apply depth scale if needed
+             scaled_depth = (self.depth_image * self.depth_scale).astype(np.uint16)
+             
+             # Convert RGB to HSV for color filtering
+-            hsv_image = cv.cvtColor(self.rgb_image, cv.COLOR_BGR2HSV)
++            hsv_image = cv.cvtColor(blurred_rgb, cv.COLOR_BGR2HSV)
+             
+             # Create HSV bounds from parameters
+             lower_hsv = np.array([self.hsv_hue_low, self.hsv_saturation_low, self.hsv_value_low])
+@@ -228,20 +302,27 @@ class ImageSegmentation(Node):
+             
+             # Create depth mask with scaled values
+             depth_mask = cv.inRange(scaled_depth, self.depth_low, self.depth_high)
+-
++            
++            # Process HSV mask with morphological operations
++            hsv_processed = self.process_mask_with_morphology(blurred_rgb, hsv_mask)
++            
++            # For depth, apply dilation
++            kernel = np.ones(tuple(self.morph_kernel_size), np.uint8)
++            depth_processed = cv.dilate(depth_mask, kernel, iterations=self.depth_dilate_iterations)
++            
+             # Combine masks
+-            combined_mask = cv.bitwise_and(hsv_mask, depth_mask)
++            combined_mask = cv.bitwise_and(hsv_processed, depth_processed)
+             
+-            # Clean mask using connected components
+-            cleaned_mask = self.clean_mask_with_components(combined_mask)
++            # Get largest blob mask
++            cleaned_mask = self.get_largest_blob_mask(combined_mask)
+             
+             # Apply mask to get segmented results
+             result_rgb = cv.bitwise_and(self.rgb_image, self.rgb_image, mask=cleaned_mask)
+             result_depth = cv.bitwise_and(self.depth_image, self.depth_image, mask=cleaned_mask)
+             
+             # Publish all masks and results
+-            self.publish_mask(hsv_mask, self.hsv_mask_pub)
+-            self.publish_mask(depth_mask, self.depth_mask_pub)
++            self.publish_mask(hsv_processed, self.hsv_mask_pub)
++            self.publish_mask(depth_processed, self.depth_mask_pub)
+             self.publish_mask(combined_mask, self.combined_mask_pub)
+             self.publish_mask(cleaned_mask, self.cleaned_mask_pub)
+             self.publish_image(result_rgb, self.result_rgb_pub, 'bgr8')
+@@ -250,36 +331,13 @@ class ImageSegmentation(Node):
+             # Debug visualization
+             if self.debug_view:
+                 self.visualize_segmentation(
+-                    self.rgb_image, hsv_mask, depth_mask, 
++                    self.rgb_image, hsv_processed, depth_processed, 
+                     combined_mask, cleaned_mask, result_rgb
+                 )
+                 
+         except Exception as e:
+             self.get_logger().error(f"Error in timer_callback: {e}")
+ 
+-    def clean_mask_with_components(self, mask):
+-        """Clean mask using connected components analysis."""
+-        # Compute connected components
+-        num_labels, labels, stats, centroids = cv.connectedComponentsWithStats(
+-            mask, self.connectivity, cv.CV_32S
+-        )
+-        
+-        if num_labels <= 1:  # Only background
+-            return np.zeros_like(mask)
+-        
+-        if self.filter_largest_component:
+-            # Find largest component (excluding background at index 0)
+-            largest_label = 1 + np.argmax(stats[1:, cv.CC_STAT_AREA])
+-            cleaned_mask = np.where(labels == largest_label, 255, 0).astype('uint8')
+-        else:
+-            # Keep all components above minimum area
+-            cleaned_mask = np.zeros_like(mask)
+-            for label in range(1, num_labels):  # Skip background
+-                if stats[label, cv.CC_STAT_AREA] >= self.min_component_area:
+-                    cleaned_mask[labels == label] = 255
+-        
+-        return cleaned_mask
+-
+     def publish_mask(self, mask, publisher):
+         """Publish a grayscale mask as ROS Image message."""
+         try:
+@@ -299,7 +357,6 @@ class ImageSegmentation(Node):
+     def publish_depth(self, depth, publisher):
+         """Publish a depth image as ROS Image message."""
+         try:
+-            # Ensure depth is uint16 before publishing
+             if depth.dtype != np.uint16:
+                 depth = depth.astype(np.uint16)
+             msg = self.bridge.cv2_to_imgmsg(depth, encoding='16UC1')
+@@ -315,7 +372,6 @@ class ImageSegmentation(Node):
+         # Resize images if needed
+         def resize_to_viz(img, is_mask=False):
+             if len(img.shape) == 2 and not is_mask:
+-                # Depth image - normalize for visualization
+                 normalized = cv.normalize(img, None, 0, 255, cv.NORM_MINMAX, cv.CV_8U)
+                 img = cv.cvtColor(normalized, cv.COLOR_GRAY2BGR)
+             elif is_mask:
+@@ -330,7 +386,13 @@ class ImageSegmentation(Node):
+         # Bottom row
+         viz[480:960, 0:640] = resize_to_viz(combined_mask, True)
+         viz[480:960, 640:1280] = resize_to_viz(cleaned_mask, True)
+-        viz[480:960, 1280:1920] = resize_to_viz(result)
++        
++        # Create white background for result square and overlay the result
++        result_resized = resize_to_viz(result)
++        result_area = viz[480:960, 1280:1920]
++        result_area.fill(255)
++        mask = np.any(result_resized != [0, 0, 0], axis=2)
++        result_area[mask] = result_resized[mask]
+         
+         # Add labels
+         cv.putText(viz, "Original RGB", (10, 30), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+@@ -338,14 +400,31 @@ class ImageSegmentation(Node):
+         cv.putText(viz, "Depth Mask", (1290, 30), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+         cv.putText(viz, "Combined Mask", (10, 510), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+         cv.putText(viz, "Cleaned Mask", (650, 510), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+-        cv.putText(viz, "Result", (1290, 510), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
++        cv.putText(viz, "Result", (1290, 510), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
+         
+         cv.namedWindow('Segmentation Debug', cv.WINDOW_NORMAL)
+         cv.imshow('Segmentation Debug', viz)
+         cv.waitKey(1)
+ 
++    def configure_blob_detector(self) -> None:
++        """Configure OpenCV SimpleBlobDetector with loaded parameters."""
++        params = cv.SimpleBlobDetector_Params()
++        params.minThreshold = self.blob_min_threshold
++        params.maxThreshold = self.blob_max_threshold
++        params.filterByColor = True
++        params.blobColor = 255
++        params.filterByArea = True
++        params.minArea = self.blob_min_area
++        params.maxArea = self.blob_max_area
++        params.filterByConvexity = False 
++        params.filterByCircularity = False  
++        params.filterByInertia = False
++        self.blob_detector = cv.SimpleBlobDetector_create(params)
++
+     def parameter_callback(self, params: list[Parameter]) -> SetParametersResult:
+         """Validates and applies updated node parameters."""
++        blob_params_changed = False
++        
+         for param in params:
+             name = param.name
+             value = param.value
+@@ -390,24 +469,25 @@ class ImageSegmentation(Node):
+                 self.depth_scale = float(value)
+                 self.get_logger().info(f"depth_scale updated: {value}.")
+             
+-            elif name == 'min_component_area':
+-                if not isinstance(value, int) or value < 1:
+-                    return SetParametersResult(successful=False, reason="min_component_area must be >= 1.")
+-                self.min_component_area = value
+-                self.get_logger().info(f"min_component_area updated: {value}.")
++            elif name in ('gaussian_kernel_size', 'morph_kernel_size'):
++                if not (isinstance(value, list) and len(value) == 2 and all(isinstance(v, int) and v > 0 for v in value)):
++                    return SetParametersResult(successful=False, reason=f"{name} must be a list of 2 positive integers.")
++                setattr(self, name, value)
++                self.get_logger().info(f"{name} updated: {value}.")
+             
+-            elif name == 'connectivity':
+-                if value not in [4, 8]:
+-                    return SetParametersResult(successful=False, reason="connectivity must be 4 or 8.")
+-                self.connectivity = value
+-                self.get_logger().info(f"connectivity updated: {value}.")
++            elif name in (
++                'gaussian_sigma', 'grayscale_threshold',
++                'hsv_erode_iterations', 'depth_dilate_iterations',
++                'blob_min_threshold', 'blob_max_threshold',
++                'blob_min_area', 'blob_max_area'
++            ):
++                if not isinstance(value, int) or value < 0:
++                    return SetParametersResult(successful=False, reason=f"{name} must be a non-negative integer.")
++                setattr(self, name, value)
++                if 'blob' in name:
++                    blob_params_changed = True
++                self.get_logger().info(f"{name} updated: {value}.")
+             
+-            elif name == 'filter_largest_component':
+-                if not isinstance(value, bool):
+-                    return SetParametersResult(successful=False, reason="filter_largest_component must be a boolean.")
+-                self.filter_largest_component = value
+-                self.get_logger().info(f"filter_largest_component updated: {value}.")
+-
+             elif name in ('rgb_topic', 'depth_topic'):
+                 if not isinstance(value, str) or not value:
+                     return SetParametersResult(successful=False, reason=f"{name} must be a non-empty string.")
+@@ -422,6 +502,9 @@ class ImageSegmentation(Node):
+                 self.get_logger().info(f"use_compressed updated: {value}.")
+                 self.get_logger().warn("Compression setting changes require node restart to take effect.")
+         
++        if blob_params_changed:
++            self.configure_blob_detector()
++        
+         return SetParametersResult(successful=True)
+ 
+     def destroy_node(self):
+diff --git a/ros2_ws/src/xarm_vision/xarm_vision/point_cloud_generator.py b/ros2_ws/src/xarm_vision/xarm_vision/point_cloud_generator.py
+index fb512d6..868351b 100644
+--- a/ros2_ws/src/xarm_vision/xarm_vision/point_cloud_generator.py
++++ b/ros2_ws/src/xarm_vision/xarm_vision/point_cloud_generator.py
+@@ -187,7 +187,6 @@ class PointCloudGenerator(Node):
+             rgbd_image = o3d.geometry.RGBDImage.create_from_color_and_depth(
+                 o3d_color, o3d_depth,
+                 depth_scale=self.depth_scale,
+-                depth_trunc=3.0,  
+                 convert_rgb_to_intensity=False
+             )
+             
