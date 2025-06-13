@@ -3,7 +3,7 @@
 # X-ARM Robot RViz Connection Script
 
 # Configuration variables
-ROBOT_IP="192.168.1.201"
+ROBOT_IP="192.168.1.208"
 PC_IP="192.168.1.100"
 ROBOT_TYPE="xarm6"  
 INTERFACE="enp7s0"   

@@ -50,7 +50,7 @@ def generate_launch_description():
             os.path.join(pkg_xarm_moveit, 'launch', 'xarm6_moveit_realmove.launch.py')
         ]),
         launch_arguments={
-            'robot_ip': '192.168.1.117',
+            'robot_ip': '192.168.1.208',
             'add_gripper': 'true',
         }.items()
     )

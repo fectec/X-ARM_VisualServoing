@@ -258,7 +258,7 @@ class PointCloudGenerator(Node):
         t.header.stamp = self.get_clock().now().to_msg()
 
         if self.xarm_integration:
-            t.header.frame_id = 'link_base'  
+            t.header.frame_id = 'link_eef'  
         else:
             t.header.frame_id = 'base_link'  
 
