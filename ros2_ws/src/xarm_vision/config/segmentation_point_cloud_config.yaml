@@ -39,7 +39,7 @@ point_cloud_generator_node:
 
     tf_x: -0.236
     tf_y: -0.359
-    tf_z: 0.1235
+    tf_z: 0.15
     tf_qx: -0.7068252
     tf_qy: 0.0
     tf_qz: 0.0

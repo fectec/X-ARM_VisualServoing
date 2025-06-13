@@ -9,7 +9,9 @@ def generate_launch_description():
 
     config_file = os.path.join(pkg_vision, 'config', 'segmentation_point_cloud_config.yaml')
     intrinsics_file = os.path.join(pkg_vision, 'config', 'kinect_calibration.yaml')
+    rviz_config_file = os.path.join(pkg_vision, 'config', 'segmentation_point_cloud.rviz')
 
+    # Image segmentation node    
     image_segmentation_node = Node(
         package='xarm_vision',
         executable='image_segmentation',
@@ -18,6 +20,7 @@ def generate_launch_description():
         output='screen'
     )
 
+    # Point cloud generator node
     point_cloud_generator_node = Node(
         package='xarm_vision',
         executable='point_cloud_generator',
@@ -29,7 +32,17 @@ def generate_launch_description():
         output='screen'
     )
 
+    # RViz visualization node
+    rviz_node = Node(
+        package='rviz2',
+        executable='rviz2',
+        name='rviz2',
+        arguments=['-d', rviz_config_file],
+        output='screen'
+    )
+
     return LaunchDescription([
         image_segmentation_node,
-        point_cloud_generator_node
+        point_cloud_generator_node,
+        rviz_node
     ])
