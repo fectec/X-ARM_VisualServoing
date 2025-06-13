@@ -16,6 +16,8 @@ setup(
             glob(os.path.join('config', '*'))),
         (os.path.join('share', package_name, 'launch'),
             glob(os.path.join('launch', '*.launch.py'))),
+        (os.path.join('share', package_name, 'models'),
+            glob(os.path.join('models', '*'))),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -28,7 +30,7 @@ setup(
         'console_scripts': [
             'image_segmentation = xarm_vision.image_segmentation:main',
             'point_cloud_generator = xarm_vision.point_cloud_generator:main',
-            'point_cloud_visualizer = xarm_vision.point_cloud_visualizer:main',
+            'point_clouds_alignment_scaling = xarm_vision.point_clouds_alignment_scaling:main',   
         ],
     },
 )

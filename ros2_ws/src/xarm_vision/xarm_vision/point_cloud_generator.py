@@ -195,12 +195,6 @@ class PointCloudGenerator(Node):
                 rgbd_image, self.camera_intrinsic
             )
             
-            # Transform to ROS coordinate system
-            pcd.transform([[1, 0, 0, 0], 
-                          [0, 1, 0, 0], 
-                          [0, 0, 1, 0], 
-                          [0, 0, 0, 1]])
-            
             if len(pcd.points) > 0:
                 # Voxel downsampling
                 if self.voxel_size > 0:

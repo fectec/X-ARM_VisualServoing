@@ -18,17 +18,7 @@ image_segmentation_node:
     depth_high: 430
     depth_scale: 1.0
 
-    gaussian_kernel_size: [9, 9]
-    gaussian_sigma: 5
-    grayscale_threshold: 5
-    morph_kernel_size: [3, 3]
-    hsv_erode_iterations: 5
-    depth_dilate_iterations: 100
-
-    blob_min_threshold: 200
-    blob_max_threshold: 1000
-    blob_min_area: 50000
-    blob_max_area: 10000000
+    connectivity: 4
 
 point_cloud_generator_node:
   ros__parameters:
@@ -44,3 +34,10 @@ point_cloud_generator_node:
     tf_qy: 0.0
     tf_qz: 0.0
     tf_qw: 0.7073883
+
+point_clouds_alignment_scaling:
+  ros__parameters:
+    update_rate: 10.0
+
+    voxel_size: 0.002
+    alignment_percentile: 98.0

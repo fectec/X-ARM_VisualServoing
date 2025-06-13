@@ -15,7 +15,9 @@ from sensor_msgs.msg import Image, CompressedImage
 
 class ImageSegmentation(Node):
     """
-    Performs image segmentation using color and depth filtering with blob detection.
+    Performs image segmentation using color and depth filtering.
+    Segments objects from RGB-D camera data using HSV color ranges and depth thresholds.
+    Publishes various masks and segmented images for downstream processing.
     """
     def __init__(self):
         super().__init__('image_segmentation')
@@ -35,26 +37,15 @@ class ImageSegmentation(Node):
         self.declare_parameter('hsv_saturation_low', 0)
         self.declare_parameter('hsv_saturation_high', 255)
         self.declare_parameter('hsv_value_low', 0)
-        self.declare_parameter('hsv_value_high', 100)                   # Low value for black
+        self.declare_parameter('hsv_value_high', 50)                    # Low value for black
         
         # Depth filtering parameters 
-        self.declare_parameter('depth_low', 1)                          # mm                        
-        self.declare_parameter('depth_high', 430)                       # mm
+        self.declare_parameter('depth_low', 250)                        # mm                        
+        self.declare_parameter('depth_high', 800)                       # mm
         self.declare_parameter('depth_scale', 1.0)                      # Scale factor for depth values
         
-        # Image processing parameters
-        self.declare_parameter('gaussian_kernel_size', [9, 9])
-        self.declare_parameter('gaussian_sigma', 5)
-        self.declare_parameter('grayscale_threshold', 5)               
-        self.declare_parameter('morph_kernel_size', [3, 3])
-        self.declare_parameter('hsv_erode_iterations', 5)              
-        self.declare_parameter('depth_dilate_iterations', 50)          
-        
-        # Blob detector parameters
-        self.declare_parameter('blob_min_threshold', 240)
-        self.declare_parameter('blob_max_threshold', 1000)
-        self.declare_parameter('blob_min_area', 50000)                  
-        self.declare_parameter('blob_max_area', 10000000)
+        # Connected components parameter
+        self.declare_parameter('connectivity', 4) 
 
         # Retrieve parameters
         self.update_rate = self.get_parameter('update_rate').value
@@ -71,17 +62,7 @@ class ImageSegmentation(Node):
         self.depth_high = self.get_parameter('depth_high').value
         self.depth_scale = self.get_parameter('depth_scale').value
         
-        self.gaussian_kernel_size = self.get_parameter('gaussian_kernel_size').value
-        self.gaussian_sigma = self.get_parameter('gaussian_sigma').value
-        self.grayscale_threshold = self.get_parameter('grayscale_threshold').value
-        self.morph_kernel_size = self.get_parameter('morph_kernel_size').value
-        self.hsv_erode_iterations = self.get_parameter('hsv_erode_iterations').value
-        self.depth_dilate_iterations = self.get_parameter('depth_dilate_iterations').value
-        
-        self.blob_min_threshold = self.get_parameter('blob_min_threshold').value
-        self.blob_max_threshold = self.get_parameter('blob_max_threshold').value
-        self.blob_min_area = self.get_parameter('blob_min_area').value
-        self.blob_max_area = self.get_parameter('blob_max_area').value
+        self.connectivity = self.get_parameter('connectivity').value
         
         self.rgb_topic = self.get_parameter('rgb_topic').value
         self.depth_topic = self.get_parameter('depth_topic').value
@@ -95,30 +76,21 @@ class ImageSegmentation(Node):
         
         # Immediately validate the initial values
         init_params = [
-            Parameter('update_rate',                Parameter.Type.DOUBLE,          self.update_rate),
-            Parameter('debug_view',                 Parameter.Type.BOOL,            self.debug_view),
-            Parameter('hsv_hue_low',                Parameter.Type.INTEGER,         self.hsv_hue_low),
-            Parameter('hsv_hue_high',               Parameter.Type.INTEGER,         self.hsv_hue_high),
-            Parameter('hsv_saturation_low',         Parameter.Type.INTEGER,         self.hsv_saturation_low),
-            Parameter('hsv_saturation_high',        Parameter.Type.INTEGER,         self.hsv_saturation_high),
-            Parameter('hsv_value_low',              Parameter.Type.INTEGER,         self.hsv_value_low),
-            Parameter('hsv_value_high',             Parameter.Type.INTEGER,         self.hsv_value_high),
-            Parameter('depth_low',                  Parameter.Type.INTEGER,         self.depth_low),
-            Parameter('depth_high',                 Parameter.Type.INTEGER,         self.depth_high),
-            Parameter('depth_scale',                Parameter.Type.DOUBLE,          self.depth_scale),
-            Parameter('gaussian_kernel_size',       Parameter.Type.INTEGER_ARRAY,   self.gaussian_kernel_size),
-            Parameter('gaussian_sigma',             Parameter.Type.INTEGER,         self.gaussian_sigma),
-            Parameter('grayscale_threshold',        Parameter.Type.INTEGER,         self.grayscale_threshold),
-            Parameter('morph_kernel_size',          Parameter.Type.INTEGER_ARRAY,   self.morph_kernel_size),
-            Parameter('hsv_erode_iterations',       Parameter.Type.INTEGER,         self.hsv_erode_iterations),
-            Parameter('depth_dilate_iterations',    Parameter.Type.INTEGER,         self.depth_dilate_iterations),
-            Parameter('blob_min_threshold',         Parameter.Type.INTEGER,         self.blob_min_threshold),
-            Parameter('blob_max_threshold',         Parameter.Type.INTEGER,         self.blob_max_threshold),
-            Parameter('blob_min_area',              Parameter.Type.INTEGER,         self.blob_min_area),
-            Parameter('blob_max_area',              Parameter.Type.INTEGER,         self.blob_max_area),
-            Parameter('rgb_topic',                  Parameter.Type.STRING,          self.rgb_topic),
-            Parameter('depth_topic',                Parameter.Type.STRING,          self.depth_topic),
-            Parameter('use_compressed',             Parameter.Type.BOOL,            self.use_compressed),
+            Parameter('update_rate',                Parameter.Type.DOUBLE,  self.update_rate),
+            Parameter('debug_view',                 Parameter.Type.BOOL,    self.debug_view),
+            Parameter('hsv_hue_low',                Parameter.Type.INTEGER, self.hsv_hue_low),
+            Parameter('hsv_hue_high',               Parameter.Type.INTEGER, self.hsv_hue_high),
+            Parameter('hsv_saturation_low',         Parameter.Type.INTEGER, self.hsv_saturation_low),
+            Parameter('hsv_saturation_high',        Parameter.Type.INTEGER, self.hsv_saturation_high),
+            Parameter('hsv_value_low',              Parameter.Type.INTEGER, self.hsv_value_low),
+            Parameter('hsv_value_high',             Parameter.Type.INTEGER, self.hsv_value_high),
+            Parameter('depth_low',                  Parameter.Type.INTEGER, self.depth_low),
+            Parameter('depth_high',                 Parameter.Type.INTEGER, self.depth_high),
+            Parameter('depth_scale',                Parameter.Type.DOUBLE,  self.depth_scale),
+            Parameter('connectivity',               Parameter.Type.INTEGER, self.connectivity),
+            Parameter('rgb_topic',                  Parameter.Type.STRING,  self.rgb_topic),
+            Parameter('depth_topic',                Parameter.Type.STRING,  self.depth_topic),
+            Parameter('use_compressed',             Parameter.Type.BOOL,    self.use_compressed),
         ]
         
         result: SetParametersResult = self.parameter_callback(init_params)
@@ -130,44 +102,41 @@ class ImageSegmentation(Node):
         self.depth_image = None
         self.bridge = CvBridge()
         
-        # Create the blob detector object with configured parameters
-        self.configure_blob_detector()
-        
         # Create publishers for various outputs
         self.hsv_mask_pub = self.create_publisher(
             Image,
             'segmentation/hsv_mask',
-            qos.qos_profile_sensor_data
+            10
         )
         
         self.depth_mask_pub = self.create_publisher(
             Image,
             'segmentation/depth_mask',
-            qos.qos_profile_sensor_data
+            10
         )
         
         self.combined_mask_pub = self.create_publisher(
             Image,
             'segmentation/combined_mask',
-            qos.qos_profile_sensor_data
+            10
         )
         
         self.cleaned_mask_pub = self.create_publisher(
             Image,
             'segmentation/cleaned_mask',
-            qos.qos_profile_sensor_data
+            10
         )
         
         self.result_rgb_pub = self.create_publisher(
             Image,
             'segmentation/result_rgb',
-            qos.qos_profile_sensor_data
+            10
         )
         
         self.result_depth_pub = self.create_publisher(
             Image,
             'segmentation/result_depth',
-            qos.qos_profile_sensor_data
+            10
         )
         
         # Create subscribers based on compression setting
@@ -215,12 +184,14 @@ class ImageSegmentation(Node):
         """Callback to convert depth image from ROS format to OpenCV."""
         try:
             if self.use_compressed:
+                # For compressed depth, we need to handle the encoding properly
                 self.depth_image = self.bridge.compressed_imgmsg_to_cv2(msg, desired_encoding='passthrough')
             else:
                 self.depth_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='passthrough')
             
             # Check depth image format and convert if necessary
             if self.depth_image.dtype == np.float32:
+                # Image is in meters as float32, convert to millimeters as uint16
                 self.depth_image = (self.depth_image * 1000.0).astype(np.uint16)
             elif self.depth_image.dtype != np.uint16:
                 self.get_logger().warn(f"Unexpected depth format: {self.depth_image.dtype}.")
@@ -229,50 +200,6 @@ class ImageSegmentation(Node):
             self.get_logger().error(f"Depth CvBridgeError: {e}")
             return
 
-    def process_mask_with_morphology(self, image, mask):
-        """Process mask using morphological operations."""
-        # Apply mask to extract regions from original image
-        extracted_image = cv.bitwise_and(image, image, mask=mask)
-        
-        # Convert extracted regions to grayscale
-        gray_image = cv.cvtColor(extracted_image, cv.COLOR_BGR2GRAY)
-        
-        # Threshold grayscale image to binary image
-        _, binary_image = cv.threshold(gray_image, self.grayscale_threshold, 255, cv.THRESH_BINARY)
-        
-        # Apply only erosion to clean noise
-        kernel = np.ones(tuple(self.morph_kernel_size), np.uint8)
-        cleaned_image = cv.erode(binary_image, kernel, iterations=self.hsv_erode_iterations)
-        
-        return cleaned_image
-
-    def get_largest_blob_mask(self, binary_image):
-        """Detect blobs and return mask of the largest blob."""
-        # Detect blobs
-        keypoints = self.blob_detector.detect(binary_image)
-        
-        if not keypoints:
-            return np.zeros_like(binary_image)
-        
-        # Find the largest blob
-        largest_kp = max(keypoints, key=lambda kp: kp.size)
-        
-        # Create mask from largest blob
-        mask = np.zeros_like(binary_image)
-        
-        center = (int(largest_kp.pt[0]), int(largest_kp.pt[1]))
-        
-        # Instead of just drawing a circle, use contour detection to get actual blob shape
-        contours, _ = cv.findContours(binary_image, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
-        
-        # Find contour that contains the largest blob center
-        for contour in contours:
-            if cv.pointPolygonTest(contour, center, False) >= 0:
-                cv.drawContours(mask, [contour], -1, 255, -1)
-                break
-        
-        return mask
-
     def timer_callback(self) -> None:
         """Main processing loop for segmentation."""
         # Check if both images have been received
@@ -280,18 +207,11 @@ class ImageSegmentation(Node):
             return
         
         try:
-            # Apply Gaussian blur to reduce noise
-            blurred_rgb = cv.GaussianBlur(
-                self.rgb_image,
-                tuple(self.gaussian_kernel_size),
-                self.gaussian_sigma
-            )
-            
             # Apply depth scale if needed
             scaled_depth = (self.depth_image * self.depth_scale).astype(np.uint16)
             
             # Convert RGB to HSV for color filtering
-            hsv_image = cv.cvtColor(blurred_rgb, cv.COLOR_BGR2HSV)
+            hsv_image = cv.cvtColor(self.rgb_image, cv.COLOR_BGR2HSV)
             
             # Create HSV bounds from parameters
             lower_hsv = np.array([self.hsv_hue_low, self.hsv_saturation_low, self.hsv_value_low])
@@ -302,27 +222,20 @@ class ImageSegmentation(Node):
             
             # Create depth mask with scaled values
             depth_mask = cv.inRange(scaled_depth, self.depth_low, self.depth_high)
-            
-            # Process HSV mask with morphological operations
-            hsv_processed = self.process_mask_with_morphology(blurred_rgb, hsv_mask)
-            
-            # For depth, apply dilation
-            kernel = np.ones(tuple(self.morph_kernel_size), np.uint8)
-            depth_processed = cv.dilate(depth_mask, kernel, iterations=self.depth_dilate_iterations)
-            
+
             # Combine masks
-            combined_mask = cv.bitwise_and(hsv_processed, depth_processed)
+            combined_mask = cv.bitwise_and(hsv_mask, depth_mask)
             
-            # Get largest blob mask
-            cleaned_mask = self.get_largest_blob_mask(combined_mask)
+            # Clean mask using connected components
+            cleaned_mask = self.clean_mask_with_components(combined_mask)
             
             # Apply mask to get segmented results
             result_rgb = cv.bitwise_and(self.rgb_image, self.rgb_image, mask=cleaned_mask)
             result_depth = cv.bitwise_and(self.depth_image, self.depth_image, mask=cleaned_mask)
             
             # Publish all masks and results
-            self.publish_mask(hsv_processed, self.hsv_mask_pub)
-            self.publish_mask(depth_processed, self.depth_mask_pub)
+            self.publish_mask(hsv_mask, self.hsv_mask_pub)
+            self.publish_mask(depth_mask, self.depth_mask_pub)
             self.publish_mask(combined_mask, self.combined_mask_pub)
             self.publish_mask(cleaned_mask, self.cleaned_mask_pub)
             self.publish_image(result_rgb, self.result_rgb_pub, 'bgr8')
@@ -331,12 +244,28 @@ class ImageSegmentation(Node):
             # Debug visualization
             if self.debug_view:
                 self.visualize_segmentation(
-                    self.rgb_image, hsv_processed, depth_processed, 
+                    self.rgb_image, hsv_mask, depth_mask, 
                     combined_mask, cleaned_mask, result_rgb
                 )
                 
         except Exception as e:
             self.get_logger().error(f"Error in timer_callback: {e}")
+
+    def clean_mask_with_components(self, mask):
+        """Clean mask using connected components analysis."""
+        # Compute connected components
+        num_labels, labels, stats, centroids = cv.connectedComponentsWithStats(
+            mask, self.connectivity, cv.CV_32S
+        )
+        
+        if num_labels <= 1:  # Only background
+            return np.zeros_like(mask)
+        
+        # Find largest component (excluding background at index 0)
+        largest_label = 1 + np.argmax(stats[1:, cv.CC_STAT_AREA])
+        cleaned_mask = np.where(labels == largest_label, 255, 0).astype('uint8')
+
+        return cleaned_mask
 
     def publish_mask(self, mask, publisher):
         """Publish a grayscale mask as ROS Image message."""
@@ -357,6 +286,7 @@ class ImageSegmentation(Node):
     def publish_depth(self, depth, publisher):
         """Publish a depth image as ROS Image message."""
         try:
+            # Ensure depth is uint16 before publishing
             if depth.dtype != np.uint16:
                 depth = depth.astype(np.uint16)
             msg = self.bridge.cv2_to_imgmsg(depth, encoding='16UC1')
@@ -372,6 +302,7 @@ class ImageSegmentation(Node):
         # Resize images if needed
         def resize_to_viz(img, is_mask=False):
             if len(img.shape) == 2 and not is_mask:
+                # Depth image - normalize for visualization
                 normalized = cv.normalize(img, None, 0, 255, cv.NORM_MINMAX, cv.CV_8U)
                 img = cv.cvtColor(normalized, cv.COLOR_GRAY2BGR)
             elif is_mask:
@@ -386,13 +317,7 @@ class ImageSegmentation(Node):
         # Bottom row
         viz[480:960, 0:640] = resize_to_viz(combined_mask, True)
         viz[480:960, 640:1280] = resize_to_viz(cleaned_mask, True)
-        
-        # Create white background for result square and overlay the result
-        result_resized = resize_to_viz(result)
-        result_area = viz[480:960, 1280:1920]
-        result_area.fill(255)
-        mask = np.any(result_resized != [0, 0, 0], axis=2)
-        result_area[mask] = result_resized[mask]
+        viz[480:960, 1280:1920] = resize_to_viz(result)
         
         # Add labels
         cv.putText(viz, "Original RGB", (10, 30), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
@@ -400,31 +325,14 @@ class ImageSegmentation(Node):
         cv.putText(viz, "Depth Mask", (1290, 30), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
         cv.putText(viz, "Combined Mask", (10, 510), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
         cv.putText(viz, "Cleaned Mask", (650, 510), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-        cv.putText(viz, "Result", (1290, 510), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
+        cv.putText(viz, "Result", (1290, 510), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
         
         cv.namedWindow('Segmentation Debug', cv.WINDOW_NORMAL)
         cv.imshow('Segmentation Debug', viz)
         cv.waitKey(1)
 
-    def configure_blob_detector(self) -> None:
-        """Configure OpenCV SimpleBlobDetector with loaded parameters."""
-        params = cv.SimpleBlobDetector_Params()
-        params.minThreshold = self.blob_min_threshold
-        params.maxThreshold = self.blob_max_threshold
-        params.filterByColor = True
-        params.blobColor = 255
-        params.filterByArea = True
-        params.minArea = self.blob_min_area
-        params.maxArea = self.blob_max_area
-        params.filterByConvexity = False 
-        params.filterByCircularity = False  
-        params.filterByInertia = False
-        self.blob_detector = cv.SimpleBlobDetector_create(params)
-
     def parameter_callback(self, params: list[Parameter]) -> SetParametersResult:
         """Validates and applies updated node parameters."""
-        blob_params_changed = False
-        
         for param in params:
             name = param.name
             value = param.value
@@ -469,24 +377,11 @@ class ImageSegmentation(Node):
                 self.depth_scale = float(value)
                 self.get_logger().info(f"depth_scale updated: {value}.")
             
-            elif name in ('gaussian_kernel_size', 'morph_kernel_size'):
-                if not (isinstance(value, list) and len(value) == 2 and all(isinstance(v, int) and v > 0 for v in value)):
-                    return SetParametersResult(successful=False, reason=f"{name} must be a list of 2 positive integers.")
-                setattr(self, name, value)
-                self.get_logger().info(f"{name} updated: {value}.")
-            
-            elif name in (
-                'gaussian_sigma', 'grayscale_threshold',
-                'hsv_erode_iterations', 'depth_dilate_iterations',
-                'blob_min_threshold', 'blob_max_threshold',
-                'blob_min_area', 'blob_max_area'
-            ):
-                if not isinstance(value, int) or value < 0:
-                    return SetParametersResult(successful=False, reason=f"{name} must be a non-negative integer.")
-                setattr(self, name, value)
-                if 'blob' in name:
-                    blob_params_changed = True
-                self.get_logger().info(f"{name} updated: {value}.")
+            elif name == 'connectivity':
+                if value not in [4, 8]:
+                    return SetParametersResult(successful=False, reason="connectivity must be 4 or 8.")
+                self.connectivity = value
+                self.get_logger().info(f"connectivity updated: {value}.")
             
             elif name in ('rgb_topic', 'depth_topic'):
                 if not isinstance(value, str) or not value:
@@ -501,9 +396,6 @@ class ImageSegmentation(Node):
                 self.use_compressed = value
                 self.get_logger().info(f"use_compressed updated: {value}.")
                 self.get_logger().warn("Compression setting changes require node restart to take effect.")
-        
-        if blob_params_changed:
-            self.configure_blob_detector()
         
         return SetParametersResult(successful=True)
 
