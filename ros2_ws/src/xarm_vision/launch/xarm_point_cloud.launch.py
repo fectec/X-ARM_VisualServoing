@@ -11,7 +11,6 @@ def generate_launch_description():
     
     config_file = os.path.join(pkg_vision, 'config', 'point_cloud_config.yaml')
     intrinsics_file = os.path.join(pkg_vision, 'config', 'kinect_calibration.yaml')
-    rviz_config_file = os.path.join(pkg_vision, 'config', 'xarm_point_cloud.rviz')
     canonical_model_file = os.path.join(pkg_vision, 'models', 'canonical_model.ply')
     
     image_segmentation_node = Node(
@@ -34,10 +33,10 @@ def generate_launch_description():
         output='screen'
     )
     
-    point_clouds_alignment_scaling_node = Node(
+    point_cloud_scaling_node = Node(
         package='xarm_vision',
-        executable='point_clouds_alignment_scaling',
-        name='point_clouds_alignment_scaling',
+        executable='point_cloud_scaling',
+        name='point_cloud_scaling',
         parameters=[
             config_file,
             {'canonical_model_path': canonical_model_file}
@@ -59,5 +58,5 @@ def generate_launch_description():
         xarm_moveit_launch,
         image_segmentation_node,
         point_cloud_generator_node,
-        point_clouds_alignment_scaling_node,
+        point_cloud_scaling_node,
     ])

@@ -1,6 +1,6 @@
 image_segmentation:
   ros__parameters:
-    update_rate: 30.0
+    update_rate: 60.0
 
     rgb_topic: "/k4a/rgb/image_raw"
     depth_topic: "/k4a/depth_to_rgb/image_raw"
@@ -12,11 +12,62 @@ image_segmentation:
     hsv_value_low: 0
     hsv_value_high: 100
 
-    depth_low: 200
-    depth_high: 430
+    depth_low: 0
+    depth_high: 2000
     depth_scale: 1.0
 
     connectivity: 4
+
+    min_component_area: 150000
+    max_component_area: 200000
+    keep_multiple_components: False
+
+    gaussian_kernel_size_width: 5
+    gaussian_kernel_size_height: 5
+    gaussian_sigma: 5.0
+
+    hsv_morph_kernel_size_width: 3
+    hsv_morph_kernel_size_height: 3
+    hsv_morph_erode_iterations: 3
+    hsv_morph_dilate_iterations: 5
+
+    depth_morph_kernel_size_width: 3
+    depth_morph_kernel_size_height: 3
+    depth_morph_erode_iterations: 8
+    depth_morph_dilate_iterations: 8
+
+yolov8_segmentation:
+  ros__parameters:
+    update_rate: 20.0
+
+    rgb_topic: '/k4a/rgb/image_raw'
+    depth_topic: '/k4a/depth_to_rgb/image_raw'
+    
+    confidence_threshold: 0.5
+
+    depth_low: 0
+    depth_high: 2000
+    depth_scale: 1.0
+
+    connectivity: 4
+
+    min_component_area: 150000
+    max_component_area: 200000
+    keep_multiple_components: False
+
+    gaussian_kernel_size_width: 5
+    gaussian_kernel_size_height: 5
+    gaussian_sigma: 5.0
+
+    yolo_morph_kernel_size_width: 3
+    yolo_morph_kernel_size_height: 3
+    yolo_morph_erode_iterations: 2
+    yolo_morph_dilate_iterations: 2
+
+    depth_morph_kernel_size_width: 3
+    depth_morph_kernel_size_height: 3
+    depth_morph_erode_iterations: 8
+    depth_morph_dilate_iterations: 8
 
 point_cloud_generator:
   ros__parameters:
@@ -33,9 +84,8 @@ point_cloud_generator:
     tf_qz: 0.0
     tf_qw: 1.0
 
-point_clouds_alignment_scaling:
+point_cloud_scaling:
   ros__parameters:
     update_rate: 10.0
-
-    voxel_size: 0.002
-    alignment_percentile: 98.0
+    
+    scaling_mode: 'largest_dim'

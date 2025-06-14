@@ -30,7 +30,8 @@ setup(
         'console_scripts': [
             'image_segmentation = xarm_vision.image_segmentation:main',
             'point_cloud_generator = xarm_vision.point_cloud_generator:main',
-            'point_clouds_alignment_scaling = xarm_vision.point_clouds_alignment_scaling:main',   
+            'point_cloud_scaling = xarm_vision.point_cloud_scaling:main',
+            'yolov8_segmentation = xarm_vision.yolov8_segmentation:main'   
         ],
     },
 )

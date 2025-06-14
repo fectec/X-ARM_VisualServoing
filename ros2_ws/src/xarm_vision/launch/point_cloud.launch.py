@@ -32,10 +32,10 @@ def generate_launch_description():
         output='screen'
     )
     
-    point_clouds_alignment_scaling_node = Node(
+    point_cloud_scaling_node = Node(
         package='xarm_vision',
-        executable='point_clouds_alignment_scaling',
-        name='point_clouds_alignment_scaling',
+        executable='point_cloud_scaling',
+        name='point_cloud_scaling',
         parameters=[
             config_file,
             {'canonical_model_path': canonical_model_file}
@@ -54,6 +54,6 @@ def generate_launch_description():
     return LaunchDescription([
         image_segmentation_node,
         point_cloud_generator_node,
-        point_clouds_alignment_scaling_node,
+        point_cloud_scaling_node,
         rviz_node
     ])
