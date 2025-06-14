@@ -33,7 +33,7 @@ class ImageSegmentation(Node):
         
         # YOLOv8 parameters
         self.declare_parameter('model_name', 'oil_pan_segmentation.pt')
-        self.declare_parameter('confidence_threshold', 0.5)
+        self.declare_parameter('confidence_threshold', 0.7)
         
         # Depth filtering parameters 
         self.declare_parameter('depth_low', 0)                          # mm                        
@@ -499,7 +499,7 @@ class ImageSegmentation(Node):
         cv.putText(viz, "Original RGB", (10, 30), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
         cv.putText(viz, "YOLOv8 Detection", (650, 30), cv.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
         cv.putText(viz, "YOLOv8 Mask", (1290, 30), cv.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2)
-        cv.putText(viz, "Depth Mask", (10, 510), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+        cv.putText(viz, "Depth Mask", (10, 510), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
         cv.putText(viz, "Combined Mask", (650, 510), cv.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
         cv.putText(viz, "Final Result", (1290, 510), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
         

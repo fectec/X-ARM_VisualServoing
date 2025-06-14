@@ -35,13 +35,15 @@ class PointCloudScaling(Node):
         # Declare parameters
         self.declare_parameter('update_rate', 5.0)                     # Hz
         self.declare_parameter('canonical_model_path', '')             # Path to canonical model PLY file
-        self.declare_parameter('scaling_mode', 'uniform')              # 'uniform', 'per_axis', 'largest_dim'
+        self.declare_parameter('scaling_mode', 'largest_dim')          # 'uniform', 'per_axis', 'largest_dim'
+        self.declare_parameter('voxel_size', 0.05)
 
         # Retrieve parameters
         self.update_rate = self.get_parameter('update_rate').value
         self.canonical_model_path = self.get_parameter('canonical_model_path').value
         self.scaling_mode = self.get_parameter('scaling_mode').value
-        
+        self.voxel_size = self.get_parameter('voxel_size').value
+
         # Timer for periodic processing
         self.timer = self.create_timer(1.0 / self.update_rate, self.timer_callback)
         
@@ -53,6 +55,7 @@ class PointCloudScaling(Node):
             Parameter('update_rate',            Parameter.Type.DOUBLE, self.update_rate),
             Parameter('canonical_model_path',   Parameter.Type.STRING, self.canonical_model_path),
             Parameter('scaling_mode',           Parameter.Type.STRING, self.scaling_mode),
+            Parameter('voxel_size',             Parameter.Type.DOUBLE, self.voxel_size),
         ]
 
         result = self.parameter_callback(init_params)
@@ -107,7 +110,9 @@ class PointCloudScaling(Node):
             
             if len(self.canonical_model.points) == 0:
                 raise RuntimeError("Canonical model is empty.")
-                
+            
+            self.canonical_model = self.canonical_model.voxel_down_sample(self.voxel_size)
+          
             self.get_logger().info(
                 f"Loaded canonical model: {len(self.canonical_model.points)} points from {self.canonical_model_path}."
             )
@@ -326,6 +331,12 @@ class PointCloudScaling(Node):
                 self.canonical_model_path = value
                 self.get_logger().info(f"canonical_model_path updated: {value}.")
                 self.load_canonical_model()
+            
+            elif name == 'voxel_size':
+                if not isinstance(value, (int, float)) or value <= 0:
+                    return SetParametersResult(successful=False, reason=f"voxel_size must be > 0.")
+                setattr(self, name, float(value))
+                self.get_logger().info(f"Updated voxel_size: {value}")  
 
         return SetParametersResult(successful=True)
 
