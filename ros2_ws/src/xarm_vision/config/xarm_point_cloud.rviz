@@ -542,7 +542,7 @@ Visualization Manager:
       Position Transformer: XYZ
       Selectable: true
       Size (Pixels): 3
-      Size (m): 0.0010000000474974513
+      Size (m): 0.003000000026077032
       Style: Flat Squares
       Topic:
         Depth: 5
@@ -576,7 +576,7 @@ Visualization Manager:
       Position Transformer: XYZ
       Selectable: true
       Size (Pixels): 3
-      Size (m): 0.0010000000474974513
+      Size (m): 0.003000000026077032
       Style: Flat Squares
       Topic:
         Depth: 5
@@ -649,10 +649,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: -0.029797788709402084
+      Pitch: 0.6102016568183899
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 0.11225326359272003
+      Yaw: 0.10226403176784515
     Saved: ~
 Window Geometry:
   Displays:

@@ -1,6 +1,6 @@
 image_segmentation:
   ros__parameters:
-    update_rate: 60.0
+    update_rate: 30.0
 
     rgb_topic: "/k4a/rgb/image_raw"
     depth_topic: "/k4a/depth_to_rgb/image_raw"
@@ -14,13 +14,11 @@ image_segmentation:
 
     depth_low: 0
     depth_high: 2000
-    depth_scale: 1.0
 
     connectivity: 4
 
     min_component_area: 150000
     max_component_area: 200000
-    keep_multiple_components: False
 
     gaussian_kernel_size_width: 5
     gaussian_kernel_size_height: 5
@@ -31,10 +29,10 @@ image_segmentation:
     hsv_morph_erode_iterations: 3
     hsv_morph_dilate_iterations: 5
 
-    depth_morph_kernel_size_width: 3
-    depth_morph_kernel_size_height: 3
-    depth_morph_erode_iterations: 8
-    depth_morph_dilate_iterations: 8
+    depth_morph_kernel_size_width: 5
+    depth_morph_kernel_size_height: 5
+    depth_morph_erode_iterations: 5
+    depth_morph_dilate_iterations: 0
 
 yolov8_segmentation:
   ros__parameters:
@@ -47,13 +45,11 @@ yolov8_segmentation:
 
     depth_low: 0
     depth_high: 2000
-    depth_scale: 1.0
 
     connectivity: 4
 
     min_component_area: 150000
     max_component_area: 200000
-    keep_multiple_components: False
 
     gaussian_kernel_size_width: 5
     gaussian_kernel_size_height: 5
@@ -71,21 +67,21 @@ yolov8_segmentation:
 
 point_cloud_generator:
   ros__parameters:
-    update_rate: 30.0
+    update_rate: 15.0
 
     depth_scale: 1000.0                 
-    voxel_size: 0.002               
+    scan_voxel_size: 0.015               
 
     tf_x: 0.027
     tf_y: 0.033
     tf_z: 0.137
     tf_qx: 0.0
     tf_qy: 0.0
-    tf_qz: 0.0
-    tf_qw: 1.0
+    tf_qz: 0.707107
+    tf_qw: 0.707107
 
 point_cloud_scaling:
   ros__parameters:
-    update_rate: 30.0
+    update_rate: 15.0
     scaling_mode: 'largest_dim'
-    voxel_size: 0.05
+    model_voxel_size: 2.8

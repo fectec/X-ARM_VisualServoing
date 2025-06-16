@@ -36,13 +36,13 @@ class PointCloudScaling(Node):
         self.declare_parameter('update_rate', 5.0)                     # Hz
         self.declare_parameter('canonical_model_path', '')             # Path to canonical model PLY file
         self.declare_parameter('scaling_mode', 'largest_dim')          # 'uniform', 'per_axis', 'largest_dim'
-        self.declare_parameter('voxel_size', 0.05)
+        self.declare_parameter('model_voxel_size', 2.8)
 
         # Retrieve parameters
         self.update_rate = self.get_parameter('update_rate').value
         self.canonical_model_path = self.get_parameter('canonical_model_path').value
         self.scaling_mode = self.get_parameter('scaling_mode').value
-        self.voxel_size = self.get_parameter('voxel_size').value
+        self.model_voxel_size = self.get_parameter('model_voxel_size').value
 
         # Timer for periodic processing
         self.timer = self.create_timer(1.0 / self.update_rate, self.timer_callback)
@@ -55,7 +55,7 @@ class PointCloudScaling(Node):
             Parameter('update_rate',            Parameter.Type.DOUBLE, self.update_rate),
             Parameter('canonical_model_path',   Parameter.Type.STRING, self.canonical_model_path),
             Parameter('scaling_mode',           Parameter.Type.STRING, self.scaling_mode),
-            Parameter('voxel_size',             Parameter.Type.DOUBLE, self.voxel_size),
+            Parameter('model_voxel_size',       Parameter.Type.DOUBLE, self.model_voxel_size),
         ]
 
         result = self.parameter_callback(init_params)
@@ -64,8 +64,10 @@ class PointCloudScaling(Node):
         
         # Initialize variables
         self.scan_pointcloud = None
-        self.canonical_model = None
+        self.canonical_model_raw = None  
+        self.canonical_model = None      
         self.scan_centroid = None
+        self.current_voxel_size = None   
         
         # Load canonical model
         self.load_canonical_model()
@@ -106,19 +108,33 @@ class PointCloudScaling(Node):
             raise RuntimeError("canonical_model_path parameter is required.")
             
         try:
-            self.canonical_model = o3d.io.read_point_cloud(self.canonical_model_path)
+            # Load raw model (without voxelization)
+            self.canonical_model_raw = o3d.io.read_point_cloud(self.canonical_model_path)
             
-            if len(self.canonical_model.points) == 0:
+            if len(self.canonical_model_raw.points) == 0:
                 raise RuntimeError("Canonical model is empty.")
             
-            self.canonical_model = self.canonical_model.voxel_down_sample(self.voxel_size)
-          
             self.get_logger().info(
-                f"Loaded canonical model: {len(self.canonical_model.points)} points from {self.canonical_model_path}."
+                f"Loaded canonical model: {len(self.canonical_model_raw.points)} points from {self.canonical_model_path}."
             )
+            
+            # Apply voxelization
+            self.apply_voxelization()
             
         except Exception as e:
             raise RuntimeError(f"Failed to load canonical model: {e}")
+
+    def apply_voxelization(self):
+        """Apply voxel downsampling to the raw canonical model."""
+        if self.canonical_model_raw is None:
+            return
+            
+        self.canonical_model = self.canonical_model_raw.voxel_down_sample(self.model_voxel_size)
+        self.current_voxel_size = self.model_voxel_size
+        
+        self.get_logger().info(
+            f"Voxelized canonical model: {len(self.canonical_model.points)} points (voxel size: {self.model_voxel_size})."
+        )
 
     def pointcloud_callback(self, msg):
         """Store the incoming segmented point cloud."""
@@ -323,7 +339,7 @@ class PointCloudScaling(Node):
                 if value not in ['uniform', 'per_axis', 'largest_dim']:
                     return SetParametersResult(successful=False, reason="scaling_mode must be 'uniform', 'per_axis', or 'largest_dim'.")
                 self.scaling_mode = value
-                self.get_logger().info(f"Updated scaling_mode: {value}")
+                self.get_logger().info(f"Updated scaling_mode: {value}.")
 
             elif name == 'canonical_model_path':
                 if not isinstance(value, str):
@@ -332,11 +348,18 @@ class PointCloudScaling(Node):
                 self.get_logger().info(f"canonical_model_path updated: {value}.")
                 self.load_canonical_model()
             
-            elif name == 'voxel_size':
+            elif name == 'model_voxel_size':
                 if not isinstance(value, (int, float)) or value <= 0:
-                    return SetParametersResult(successful=False, reason=f"voxel_size must be > 0.")
-                setattr(self, name, float(value))
-                self.get_logger().info(f"Updated voxel_size: {value}")  
+                    return SetParametersResult(successful=False, reason=f"model_voxel_size must be > 0.")
+                
+                # Check if voxel size actually changed
+                if self.current_voxel_size != value:
+                    self.model_voxel_size = float(value)
+                    self.get_logger().info(f"Updated model_voxel_size: {value}.")
+                    # Re-apply voxelization with new size
+                    self.apply_voxelization()
+                else:
+                    self.get_logger().debug(f"model_voxel_size unchanged: {value}.")
 
         return SetParametersResult(successful=True)
 

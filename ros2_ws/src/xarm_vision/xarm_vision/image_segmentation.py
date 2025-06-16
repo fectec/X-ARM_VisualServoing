@@ -11,7 +11,7 @@ from rclpy import qos
 from rclpy.parameter import Parameter
 from rcl_interfaces.msg import SetParametersResult
 
-from sensor_msgs.msg import Image, CompressedImage
+from sensor_msgs.msg import Image
 
 class ImageSegmentation(Node):
     """
@@ -38,7 +38,6 @@ class ImageSegmentation(Node):
         # Depth filtering parameters 
         self.declare_parameter('depth_low', 0)                          # mm                        
         self.declare_parameter('depth_high', 2000)                      # mm
-        self.declare_parameter('depth_scale', 1.0)                      # Scale factor for depth values
         
         # Connected components parameter
         self.declare_parameter('connectivity', 4) 
@@ -46,7 +45,6 @@ class ImageSegmentation(Node):
         # Area filtering parameters for connected components
         self.declare_parameter('min_component_area', 150000)             # Minimum pixels for valid component
         self.declare_parameter('max_component_area', 200000)             # Maximum pixels for valid component
-        self.declare_parameter('keep_multiple_components', False)        # Keep all components in range vs just largest
 
         # Gaussian blur parameters
         self.declare_parameter('gaussian_kernel_size_width', 5)
@@ -60,10 +58,10 @@ class ImageSegmentation(Node):
         self.declare_parameter('hsv_morph_dilate_iterations', 5)
 
         # Morphological operations parameters for depth mask
-        self.declare_parameter('depth_morph_kernel_size_width', 3)
-        self.declare_parameter('depth_morph_kernel_size_height', 3)
-        self.declare_parameter('depth_morph_erode_iterations', 8)
-        self.declare_parameter('depth_morph_dilate_iterations', 8)
+        self.declare_parameter('depth_morph_kernel_size_width', 5)
+        self.declare_parameter('depth_morph_kernel_size_height', 5)
+        self.declare_parameter('depth_morph_erode_iterations', 5)
+        self.declare_parameter('depth_morph_dilate_iterations', 0)
 
         # Retrieve parameters
         self.update_rate = self.get_parameter('update_rate').value
@@ -77,12 +75,10 @@ class ImageSegmentation(Node):
         
         self.depth_low = self.get_parameter('depth_low').value
         self.depth_high = self.get_parameter('depth_high').value
-        self.depth_scale = self.get_parameter('depth_scale').value
         
         self.connectivity = self.get_parameter('connectivity').value
         self.min_component_area = self.get_parameter('min_component_area').value
         self.max_component_area = self.get_parameter('max_component_area').value
-        self.keep_multiple_components = self.get_parameter('keep_multiple_components').value
         
         self.rgb_topic = self.get_parameter('rgb_topic').value
         self.depth_topic = self.get_parameter('depth_topic').value
@@ -109,33 +105,31 @@ class ImageSegmentation(Node):
         
         # Immediately validate the initial values
         init_params = [
-            Parameter('update_rate',                Parameter.Type.DOUBLE,  self.update_rate),
-            Parameter('hsv_hue_low',                Parameter.Type.INTEGER, self.hsv_hue_low),
-            Parameter('hsv_hue_high',               Parameter.Type.INTEGER, self.hsv_hue_high),
-            Parameter('hsv_saturation_low',         Parameter.Type.INTEGER, self.hsv_saturation_low),
-            Parameter('hsv_saturation_high',        Parameter.Type.INTEGER, self.hsv_saturation_high),
-            Parameter('hsv_value_low',              Parameter.Type.INTEGER, self.hsv_value_low),
-            Parameter('hsv_value_high',             Parameter.Type.INTEGER, self.hsv_value_high),
-            Parameter('depth_low',                  Parameter.Type.INTEGER, self.depth_low),
-            Parameter('depth_high',                 Parameter.Type.INTEGER, self.depth_high),
-            Parameter('depth_scale',                Parameter.Type.DOUBLE,  self.depth_scale),
-            Parameter('connectivity',               Parameter.Type.INTEGER, self.connectivity),
-            Parameter('min_component_area',         Parameter.Type.INTEGER, self.min_component_area),
-            Parameter('max_component_area',         Parameter.Type.INTEGER, self.max_component_area),
-            Parameter('keep_multiple_components',   Parameter.Type.BOOL,    self.keep_multiple_components),
-            Parameter('rgb_topic',                  Parameter.Type.STRING,  self.rgb_topic),
-            Parameter('depth_topic',                Parameter.Type.STRING,  self.depth_topic),
-            Parameter('gaussian_kernel_size_width', Parameter.Type.INTEGER, self.gaussian_kernel_size_width),
-            Parameter('gaussian_kernel_size_height', Parameter.Type.INTEGER, self.gaussian_kernel_size_height),
-            Parameter('gaussian_sigma',              Parameter.Type.DOUBLE,  self.gaussian_sigma),
-            Parameter('hsv_morph_kernel_size_width', Parameter.Type.INTEGER, self.hsv_morph_kernel_size_width),
-            Parameter('hsv_morph_kernel_size_height', Parameter.Type.INTEGER, self.hsv_morph_kernel_size_height),
-            Parameter('hsv_morph_erode_iterations',  Parameter.Type.INTEGER, self.hsv_morph_erode_iterations),
-            Parameter('hsv_morph_dilate_iterations', Parameter.Type.INTEGER, self.hsv_morph_dilate_iterations),
-            Parameter('depth_morph_kernel_size_width', Parameter.Type.INTEGER, self.depth_morph_kernel_size_width),
+            Parameter('update_rate',                    Parameter.Type.DOUBLE,  self.update_rate),
+            Parameter('hsv_hue_low',                    Parameter.Type.INTEGER, self.hsv_hue_low),
+            Parameter('hsv_hue_high',                   Parameter.Type.INTEGER, self.hsv_hue_high),
+            Parameter('hsv_saturation_low',             Parameter.Type.INTEGER, self.hsv_saturation_low),
+            Parameter('hsv_saturation_high',            Parameter.Type.INTEGER, self.hsv_saturation_high),
+            Parameter('hsv_value_low',                  Parameter.Type.INTEGER, self.hsv_value_low),
+            Parameter('hsv_value_high',                 Parameter.Type.INTEGER, self.hsv_value_high),
+            Parameter('depth_low',                      Parameter.Type.INTEGER, self.depth_low),
+            Parameter('depth_high',                     Parameter.Type.INTEGER, self.depth_high),
+            Parameter('connectivity',                   Parameter.Type.INTEGER, self.connectivity),
+            Parameter('min_component_area',             Parameter.Type.INTEGER, self.min_component_area),
+            Parameter('max_component_area',             Parameter.Type.INTEGER, self.max_component_area),
+            Parameter('rgb_topic',                      Parameter.Type.STRING,  self.rgb_topic),
+            Parameter('depth_topic',                    Parameter.Type.STRING,  self.depth_topic),
+            Parameter('gaussian_kernel_size_width',     Parameter.Type.INTEGER, self.gaussian_kernel_size_width),
+            Parameter('gaussian_kernel_size_height',    Parameter.Type.INTEGER, self.gaussian_kernel_size_height),
+            Parameter('gaussian_sigma',                 Parameter.Type.DOUBLE,  self.gaussian_sigma),
+            Parameter('hsv_morph_kernel_size_width',    Parameter.Type.INTEGER, self.hsv_morph_kernel_size_width),
+            Parameter('hsv_morph_kernel_size_height',   Parameter.Type.INTEGER, self.hsv_morph_kernel_size_height),
+            Parameter('hsv_morph_erode_iterations',     Parameter.Type.INTEGER, self.hsv_morph_erode_iterations),
+            Parameter('hsv_morph_dilate_iterations',    Parameter.Type.INTEGER, self.hsv_morph_dilate_iterations),
+            Parameter('depth_morph_kernel_size_width',  Parameter.Type.INTEGER, self.depth_morph_kernel_size_width),
             Parameter('depth_morph_kernel_size_height', Parameter.Type.INTEGER, self.depth_morph_kernel_size_height),
-            Parameter('depth_morph_erode_iterations',  Parameter.Type.INTEGER, self.depth_morph_erode_iterations),
-            Parameter('depth_morph_dilate_iterations', Parameter.Type.INTEGER, self.depth_morph_dilate_iterations),
+            Parameter('depth_morph_erode_iterations',   Parameter.Type.INTEGER, self.depth_morph_erode_iterations),
+            Parameter('depth_morph_dilate_iterations',  Parameter.Type.INTEGER, self.depth_morph_dilate_iterations),
         ]
         
         result: SetParametersResult = self.parameter_callback(init_params)
@@ -148,30 +142,6 @@ class ImageSegmentation(Node):
         self.bridge = CvBridge()
         
         # Create publishers for various outputs
-        self.hsv_mask_pub = self.create_publisher(
-            Image,
-            'segmentation/hsv_mask',
-            qos.qos_profile_sensor_data
-        )
-        
-        self.depth_mask_pub = self.create_publisher(
-            Image,
-            'segmentation/depth_mask',
-            qos.qos_profile_sensor_data
-        )
-        
-        self.combined_mask_pub = self.create_publisher(
-            Image,
-            'segmentation/combined_mask',
-            qos.qos_profile_sensor_data
-        )
-        
-        self.cleaned_mask_pub = self.create_publisher(
-            Image,
-            'segmentation/cleaned_mask',
-            qos.qos_profile_sensor_data
-        )
-        
         self.result_rgb_pub = self.create_publisher(
             Image,
             'segmentation/result_rgb',
@@ -244,9 +214,6 @@ class ImageSegmentation(Node):
                 self.gaussian_sigma
             )
 
-            # Apply depth scale if needed
-            scaled_depth = (self.depth_image * self.depth_scale).astype(np.uint16)
-            
             # Convert RGB to HSV for color filtering
             hsv_image = cv.cvtColor(blurred_rgb, cv.COLOR_BGR2HSV)
             
@@ -263,7 +230,7 @@ class ImageSegmentation(Node):
             hsv_mask = cv.dilate(hsv_mask, hsv_kernel, iterations=self.hsv_morph_dilate_iterations)
             
             # Create depth mask with scaled values
-            depth_mask = cv.inRange(scaled_depth, self.depth_low, self.depth_high)
+            depth_mask = cv.inRange(self.depth_image, self.depth_low, self.depth_high)
 
             # Apply morphological operations to depth mask
             depth_kernel = np.ones((self.depth_morph_kernel_size_width, self.depth_morph_kernel_size_height), np.uint8)
@@ -281,10 +248,6 @@ class ImageSegmentation(Node):
             result_depth = cv.bitwise_and(self.depth_image, self.depth_image, mask=cleaned_mask)
             
             # Publish all masks and results
-            self.publish_mask(hsv_mask, self.hsv_mask_pub)
-            self.publish_mask(depth_mask, self.depth_mask_pub)
-            self.publish_mask(combined_mask, self.combined_mask_pub)
-            self.publish_mask(cleaned_mask, self.cleaned_mask_pub)
             self.publish_image(result_rgb, self.result_rgb_pub, 'bgr8')
             self.publish_depth(result_depth, self.result_depth_pub)
             
@@ -320,17 +283,11 @@ class ImageSegmentation(Node):
         # Create cleaned mask
         cleaned_mask = np.zeros_like(mask)
         
-        if self.keep_multiple_components:
-            # Keep all components within the area range
-            for label in valid_labels:
-                cleaned_mask = np.where(labels == label, 255, cleaned_mask)
-            self.get_logger().debug(f"Kept {len(valid_labels)} components in area range")
-        else:
-            # Keep only the largest component within the area range
-            areas = [stats[label, cv.CC_STAT_AREA] for label in valid_labels]
-            largest_valid_idx = valid_labels[np.argmax(areas)]
-            cleaned_mask = np.where(labels == largest_valid_idx, 255, 0)
-            self.get_logger().debug(f"Kept largest valid component with area {max(areas)}")
+        # Keep only the largest component within the area range
+        areas = [stats[label, cv.CC_STAT_AREA] for label in valid_labels]
+        largest_valid_idx = valid_labels[np.argmax(areas)]
+        cleaned_mask = np.where(labels == largest_valid_idx, 255, 0)
+        self.get_logger().debug(f"Kept largest valid component with area {max(areas)}.")
 
         return cleaned_mask.astype('uint8')
 
@@ -438,12 +395,6 @@ class ImageSegmentation(Node):
                 setattr(self, name, value)
                 self.get_logger().info(f"{name} updated: {value} mm.")
             
-            elif name == 'depth_scale':
-                if not isinstance(value, (int, float)) or value <= 0:
-                    return SetParametersResult(successful=False, reason="depth_scale must be > 0.")
-                self.depth_scale = float(value)
-                self.get_logger().info(f"depth_scale updated: {value}.")
-            
             elif name == 'connectivity':
                 if value not in [4, 8]:
                     return SetParametersResult(successful=False, reason="connectivity must be 4 or 8.")
@@ -461,12 +412,6 @@ class ImageSegmentation(Node):
                     return SetParametersResult(successful=False, reason="max_component_area must be a positive integer.")
                 self.max_component_area = value
                 self.get_logger().info(f"max_component_area updated: {value} pixels.")
-                
-            elif name == 'keep_multiple_components':
-                if not isinstance(value, bool):
-                    return SetParametersResult(successful=False, reason="keep_multiple_components must be a boolean.")
-                self.keep_multiple_components = value
-                self.get_logger().info(f"keep_multiple_components updated: {value}.")
             
             elif name in ('rgb_topic', 'depth_topic'):
                 if not isinstance(value, str) or not value:

@@ -17,15 +17,15 @@ from rcl_interfaces.msg import SetParametersResult
 
 from sensor_msgs.msg import Image
 
-class ImageSegmentation(Node):
+class YoloV8Segmentation(Node):
     """
     Performs image segmentation using YOLOv8 and depth filtering.
     """
     def __init__(self):
-        super().__init__('image_segmentation')
+        super().__init__('yolov8_segmentation')
 
         # Declare parameters
-        self.declare_parameter('update_rate', 10.0)                     # Hz
+        self.declare_parameter('update_rate', 30.0)                     # Hz
 
         # Input topic selection
         self.declare_parameter('rgb_topic', '/k4a/rgb/image_raw')
@@ -38,7 +38,6 @@ class ImageSegmentation(Node):
         # Depth filtering parameters 
         self.declare_parameter('depth_low', 0)                          # mm                        
         self.declare_parameter('depth_high', 2000)                      # mm
-        self.declare_parameter('depth_scale', 1.0)                      
         
         # Connected components parameter
         self.declare_parameter('connectivity', 4) 
@@ -46,7 +45,6 @@ class ImageSegmentation(Node):
         # Area filtering parameters for connected components
         self.declare_parameter('min_component_area', 150000)               
         self.declare_parameter('max_component_area', 200000)             
-        self.declare_parameter('keep_multiple_components', False)      
 
         # Gaussian blur parameters
         self.declare_parameter('gaussian_kernel_size_width', 5)
@@ -73,12 +71,10 @@ class ImageSegmentation(Node):
         
         self.depth_low = self.get_parameter('depth_low').value
         self.depth_high = self.get_parameter('depth_high').value
-        self.depth_scale = self.get_parameter('depth_scale').value
         
         self.connectivity = self.get_parameter('connectivity').value
         self.min_component_area = self.get_parameter('min_component_area').value
         self.max_component_area = self.get_parameter('max_component_area').value
-        self.keep_multiple_components = self.get_parameter('keep_multiple_components').value
         
         self.rgb_topic = self.get_parameter('rgb_topic').value
         self.depth_topic = self.get_parameter('depth_topic').value
@@ -105,29 +101,27 @@ class ImageSegmentation(Node):
         
         # Immediately validate the initial values
         init_params = [
-            Parameter('update_rate',                Parameter.Type.DOUBLE,  self.update_rate),
-            Parameter('model_name',                 Parameter.Type.STRING,  self.model_name),
-            Parameter('confidence_threshold',       Parameter.Type.DOUBLE,  self.confidence_threshold),
-            Parameter('depth_low',                  Parameter.Type.INTEGER, self.depth_low),
-            Parameter('depth_high',                 Parameter.Type.INTEGER, self.depth_high),
-            Parameter('depth_scale',                Parameter.Type.DOUBLE,  self.depth_scale),
-            Parameter('connectivity',               Parameter.Type.INTEGER, self.connectivity),
-            Parameter('min_component_area',         Parameter.Type.INTEGER, self.min_component_area),
-            Parameter('max_component_area',         Parameter.Type.INTEGER, self.max_component_area),
-            Parameter('keep_multiple_components',   Parameter.Type.BOOL,    self.keep_multiple_components),
-            Parameter('rgb_topic',                  Parameter.Type.STRING,  self.rgb_topic),
-            Parameter('depth_topic',                Parameter.Type.STRING,  self.depth_topic),
-            Parameter('gaussian_kernel_size_width', Parameter.Type.INTEGER, self.gaussian_kernel_size_width),
-            Parameter('gaussian_kernel_size_height', Parameter.Type.INTEGER, self.gaussian_kernel_size_height),
-            Parameter('gaussian_sigma',              Parameter.Type.DOUBLE,  self.gaussian_sigma),
-            Parameter('yolo_morph_kernel_size_width', Parameter.Type.INTEGER, self.yolo_morph_kernel_size_width),
-            Parameter('yolo_morph_kernel_size_height', Parameter.Type.INTEGER, self.yolo_morph_kernel_size_height),
-            Parameter('yolo_morph_erode_iterations',  Parameter.Type.INTEGER, self.yolo_morph_erode_iterations),
-            Parameter('yolo_morph_dilate_iterations', Parameter.Type.INTEGER, self.yolo_morph_dilate_iterations),
-            Parameter('depth_morph_kernel_size_width', Parameter.Type.INTEGER, self.depth_morph_kernel_size_width),
+            Parameter('update_rate',                    Parameter.Type.DOUBLE,  self.update_rate),
+            Parameter('model_name',                     Parameter.Type.STRING,  self.model_name),
+            Parameter('confidence_threshold',           Parameter.Type.DOUBLE,  self.confidence_threshold),
+            Parameter('depth_low',                      Parameter.Type.INTEGER, self.depth_low),
+            Parameter('depth_high',                     Parameter.Type.INTEGER, self.depth_high),
+            Parameter('connectivity',                   Parameter.Type.INTEGER, self.connectivity),
+            Parameter('min_component_area',             Parameter.Type.INTEGER, self.min_component_area),
+            Parameter('max_component_area',             Parameter.Type.INTEGER, self.max_component_area),
+            Parameter('rgb_topic',                      Parameter.Type.STRING,  self.rgb_topic),
+            Parameter('depth_topic',                    Parameter.Type.STRING,  self.depth_topic),
+            Parameter('gaussian_kernel_size_width',     Parameter.Type.INTEGER, self.gaussian_kernel_size_width),
+            Parameter('gaussian_kernel_size_height',    Parameter.Type.INTEGER, self.gaussian_kernel_size_height),
+            Parameter('gaussian_sigma',                 Parameter.Type.DOUBLE,  self.gaussian_sigma),
+            Parameter('yolo_morph_kernel_size_width',   Parameter.Type.INTEGER, self.yolo_morph_kernel_size_width),
+            Parameter('yolo_morph_kernel_size_height',  Parameter.Type.INTEGER, self.yolo_morph_kernel_size_height),
+            Parameter('yolo_morph_erode_iterations',    Parameter.Type.INTEGER, self.yolo_morph_erode_iterations),
+            Parameter('yolo_morph_dilate_iterations',   Parameter.Type.INTEGER, self.yolo_morph_dilate_iterations),
+            Parameter('depth_morph_kernel_size_width',  Parameter.Type.INTEGER, self.depth_morph_kernel_size_width),
             Parameter('depth_morph_kernel_size_height', Parameter.Type.INTEGER, self.depth_morph_kernel_size_height),
-            Parameter('depth_morph_erode_iterations',  Parameter.Type.INTEGER, self.depth_morph_erode_iterations),
-            Parameter('depth_morph_dilate_iterations', Parameter.Type.INTEGER, self.depth_morph_dilate_iterations),
+            Parameter('depth_morph_erode_iterations',   Parameter.Type.INTEGER, self.depth_morph_erode_iterations),
+            Parameter('depth_morph_dilate_iterations',  Parameter.Type.INTEGER, self.depth_morph_dilate_iterations),
         ]
         
         result: SetParametersResult = self.parameter_callback(init_params)
@@ -143,31 +137,7 @@ class ImageSegmentation(Node):
         # Load YOLO model
         self._load_yolo_model()
         
-        # Create publishers for various outputs
-        self.yolo_mask_pub = self.create_publisher(
-            Image,
-            'segmentation/yolo_mask',
-            qos.qos_profile_sensor_data
-        )
-        
-        self.depth_mask_pub = self.create_publisher(
-            Image,
-            'segmentation/depth_mask',
-            qos.qos_profile_sensor_data
-        )
-        
-        self.combined_mask_pub = self.create_publisher(
-            Image,
-            'segmentation/combined_mask',
-            qos.qos_profile_sensor_data
-        )
-        
-        self.cleaned_mask_pub = self.create_publisher(
-            Image,
-            'segmentation/cleaned_mask',
-            qos.qos_profile_sensor_data
-        )
-        
+        # Create publishers
         self.result_rgb_pub = self.create_publisher(
             Image,
             'segmentation/result_rgb',
@@ -200,7 +170,7 @@ class ImageSegmentation(Node):
             qos.qos_profile_sensor_data
         )
         
-        self.get_logger().info("ImageSegmentation Node Start.")
+        self.get_logger().info("YoloV8Segmentation Node Start.")
 
     def _load_yolo_model(self):
         """Load YOLO segmentation model from package share directory."""
@@ -355,9 +325,6 @@ class ImageSegmentation(Node):
                 self.gaussian_sigma
             )
 
-            # Apply depth scale if needed
-            scaled_depth = (self.depth_image * self.depth_scale).astype(np.uint16)
-            
             # Get YOLOv8 segmentation mask and annotated image
             yolo_mask, yolo_annotated = self.get_yolo_mask(blurred_rgb)
 
@@ -367,7 +334,7 @@ class ImageSegmentation(Node):
             yolo_mask = cv.dilate(yolo_mask, yolo_kernel, iterations=self.yolo_morph_dilate_iterations)
             
             # Create depth mask with scaled values
-            depth_mask = cv.inRange(scaled_depth, self.depth_low, self.depth_high)
+            depth_mask = cv.inRange(self.depth_image, self.depth_low, self.depth_high)
 
             # Apply morphological operations to depth mask
             depth_kernel = np.ones((self.depth_morph_kernel_size_width, self.depth_morph_kernel_size_height), np.uint8)
@@ -385,10 +352,6 @@ class ImageSegmentation(Node):
             result_depth = cv.bitwise_and(self.depth_image, self.depth_image, mask=cleaned_mask)
             
             # Publish all masks and results
-            self.publish_mask(yolo_mask, self.yolo_mask_pub)
-            self.publish_mask(depth_mask, self.depth_mask_pub)
-            self.publish_mask(combined_mask, self.combined_mask_pub)
-            self.publish_mask(cleaned_mask, self.cleaned_mask_pub)
             self.publish_image(result_rgb, self.result_rgb_pub, 'bgr8')
             self.publish_depth(result_depth, self.result_depth_pub)
             
@@ -424,17 +387,11 @@ class ImageSegmentation(Node):
         # Create cleaned mask
         cleaned_mask = np.zeros_like(mask)
         
-        if self.keep_multiple_components:
-            # Keep all components within the area range
-            for label in valid_labels:
-                cleaned_mask = np.where(labels == label, 255, cleaned_mask)
-            self.get_logger().debug(f"Kept {len(valid_labels)} components in area range")
-        else:
-            # Keep only the largest component within the area range
-            areas = [stats[label, cv.CC_STAT_AREA] for label in valid_labels]
-            largest_valid_idx = valid_labels[np.argmax(areas)]
-            cleaned_mask = np.where(labels == largest_valid_idx, 255, 0)
-            self.get_logger().debug(f"Kept largest valid component with area {max(areas)}")
+        # Keep only the largest component within the area range
+        areas = [stats[label, cv.CC_STAT_AREA] for label in valid_labels]
+        largest_valid_idx = valid_labels[np.argmax(areas)]
+        cleaned_mask = np.where(labels == largest_valid_idx, 255, 0)
+        self.get_logger().debug(f"Kept largest valid component with area {max(areas)}.")
 
         return cleaned_mask.astype('uint8')
 
@@ -546,12 +503,6 @@ class ImageSegmentation(Node):
                 setattr(self, name, value)
                 self.get_logger().info(f"{name} updated: {value} mm.")
             
-            elif name == 'depth_scale':
-                if not isinstance(value, (int, float)) or value <= 0:
-                    return SetParametersResult(successful=False, reason="depth_scale must be > 0.")
-                self.depth_scale = float(value)
-                self.get_logger().info(f"depth_scale updated: {value}.")
-            
             elif name == 'connectivity':
                 if value not in [4, 8]:
                     return SetParametersResult(successful=False, reason="connectivity must be 4 or 8.")
@@ -569,12 +520,6 @@ class ImageSegmentation(Node):
                     return SetParametersResult(successful=False, reason="max_component_area must be a positive integer.")
                 self.max_component_area = value
                 self.get_logger().info(f"max_component_area updated: {value} pixels.")
-            
-            elif name == 'keep_multiple_components':
-                if not isinstance(value, bool):
-                    return SetParametersResult(successful=False, reason="keep_multiple_components must be a boolean.")
-                self.keep_multiple_components = value
-                self.get_logger().info(f"keep_multiple_components updated: {value}.")
             
             elif name == 'rgb_topic':
                 if not isinstance(value, str) or len(value.strip()) == 0:
@@ -641,9 +586,9 @@ def main(args=None):
     rclpy.init(args=args)
     
     try:
-        node = ImageSegmentation()
+        node = YoloV8Segmentation()
     except Exception as e:
-        print(f"[FATAL] ImageSegmentation failed to initialize: {e}.", file=sys.stderr)
+        print(f"[FATAL] YoloV8Segmentation failed to initialize: {e}.", file=sys.stderr)
         rclpy.shutdown()
         return
     

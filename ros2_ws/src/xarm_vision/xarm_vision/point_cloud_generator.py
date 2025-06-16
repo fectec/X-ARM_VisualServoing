@@ -36,10 +36,12 @@ class PointCloudGenerator(Node):
         super().__init__('point_cloud_generator')
         
         # Declare parameters
-        self.declare_parameter('update_rate', 5.0)                     # Hz
+        self.declare_parameter('update_rate', 15.0)                    # Hz
+
         self.declare_parameter('camera_intrinsics_file', '')           
-        self.declare_parameter('depth_scale', 1000.0)                  # Convert mm to meters
-        self.declare_parameter('voxel_size', 0.002)
+        self.declare_parameter('depth_scale', 1000.0)                  # mm to m
+        self.declare_parameter('scan_voxel_size', 0.015)
+
         self.declare_parameter('xarm_integration', True)                   
         
         self.declare_parameter('tf_x', 0.027)       
@@ -47,14 +49,16 @@ class PointCloudGenerator(Node):
         self.declare_parameter('tf_z', 0.137)  
         self.declare_parameter('tf_qx', 0.0)
         self.declare_parameter('tf_qy', 0.0)
-        self.declare_parameter('tf_qz', 0.0)
-        self.declare_parameter('tf_qw', 1.0)
+        self.declare_parameter('tf_qz', 0.707107)
+        self.declare_parameter('tf_qw', 0.707107)
         
         # Retrieve parameters
         self.update_rate = self.get_parameter('update_rate').value
+
         self.intrinsics_file = self.get_parameter('camera_intrinsics_file').value
         self.depth_scale = self.get_parameter('depth_scale').value
-        self.voxel_size = self.get_parameter('voxel_size').value
+        self.scan_voxel_size = self.get_parameter('scan_voxel_size').value
+
         self.xarm_integration = self.get_parameter('xarm_integration').value
         
         self.tf_x = self.get_parameter('tf_x').value
@@ -74,6 +78,9 @@ class PointCloudGenerator(Node):
         # Immediately validate the initial values
         init_params = [
             Parameter('update_rate',            Parameter.Type.DOUBLE, self.update_rate),
+            Parameter('camera_intrinsics_file', Parameter.Type.STRING, self.intrinsics_file),
+            Parameter('depth_scale',            Parameter.Type.DOUBLE, self.depth_scale),
+            Parameter('scan_voxel_size',        Parameter.Type.DOUBLE, self.scan_voxel_size),
             Parameter('tf_x',                   Parameter.Type.DOUBLE, self.tf_x),
             Parameter('tf_y',                   Parameter.Type.DOUBLE, self.tf_y),
             Parameter('tf_z',                   Parameter.Type.DOUBLE, self.tf_z),
@@ -81,9 +88,6 @@ class PointCloudGenerator(Node):
             Parameter('tf_qy',                  Parameter.Type.DOUBLE, self.tf_qy),
             Parameter('tf_qz',                  Parameter.Type.DOUBLE, self.tf_qz),
             Parameter('tf_qw',                  Parameter.Type.DOUBLE, self.tf_qw),
-            Parameter('camera_intrinsics_file', Parameter.Type.STRING, self.intrinsics_file),
-            Parameter('depth_scale',            Parameter.Type.DOUBLE, self.depth_scale),
-            Parameter('voxel_size',             Parameter.Type.DOUBLE, self.voxel_size),
         ]
 
         result = self.parameter_callback(init_params)
@@ -204,15 +208,32 @@ class PointCloudGenerator(Node):
             
             if len(pcd.points) > 0:
                 # Voxel downsampling
-                if self.voxel_size > 0:
-                    pcd = pcd.voxel_down_sample(self.voxel_size)
+                pcd = pcd.voxel_down_sample(self.scan_voxel_size)
                 
-                # Publish point cloud and TF
-                self.publish_pointcloud(pcd)
-                self.publish_tf()
+                # Check if there are still points after voxel downsampling
+                if len(pcd.points) > 0:
+                    # Publish point cloud and TF
+                    self.publish_pointcloud(pcd)
+                    self.publish_tf()
+                else:
+                    # No points after voxel downsampling - clear buffers
+                    self.get_logger().debug("No points after voxel downsampling - clearing buffers.")
+                    self.clear_buffers()
+            else:
+                # No points generated - clear buffers
+                self.get_logger().debug("No points generated from RGB-D - clearing buffers.")
+                self.clear_buffers()
                     
         except Exception as e:
             self.get_logger().error(f"Error in timer_callback: {e}")
+            # Clear buffers on error as well
+            self.clear_buffers()
+
+    def clear_buffers(self):
+        """Clear the RGB and depth image buffers."""
+        self.rgb_image = None
+        self.depth_image = None
+        self.get_logger().debug("Image buffers cleared.")
 
     def publish_pointcloud(self, pcd):
         """Publish the point cloud as PointCloud2 message."""
@@ -290,24 +311,30 @@ class PointCloudGenerator(Node):
                 self.timer = self.create_timer(1.0 / self.update_rate, self.timer_callback)
                 self.get_logger().info(f"Updated update_rate: {self.update_rate} Hz.")
 
-            elif name in ['depth_scale', 'voxel_size']:
-                if not isinstance(value, (int, float)) or value <= 0:
-                    return SetParametersResult(successful=False, reason=f"{name} must be > 0.")
-                setattr(self, name, float(value))
-                self.get_logger().info(f"Updated {name}: {value}")
-
-            elif name in ['tf_x', 'tf_y', 'tf_z', 'tf_qx', 'tf_qy', 'tf_qz', 'tf_qw']:
-                if not isinstance(value, (int, float)):
-                    return SetParametersResult(successful=False, reason=f"{name} must be a number.")
-                setattr(self, name, float(value))
-                self.get_logger().info(f"Updated {name}: {value}.")
-
             elif name == 'camera_intrinsics_file':
                 if not isinstance(value, str):
                     return SetParametersResult(successful=False, reason="camera_intrinsics_file must be a string.")
                 self.intrinsics_file = value
                 self.get_logger().info(f"camera_intrinsics_file updated: {value}.")
                 self.load_camera_intrinsics()
+
+            elif name in ['depth_scale', 'scan_voxel_size']:
+                if not isinstance(value, (int, float)) or value <= 0:
+                    return SetParametersResult(successful=False, reason=f"{name} must be > 0.")
+                setattr(self, name, float(value))
+                self.get_logger().info(f"Updated {name}: {value}.")
+
+            elif name == 'xarm_integration':
+                if not isinstance(value, bool):
+                    return SetParametersResult(successful=False, reason="xarm_integration must be a boolean.")
+                self.xarm_integration = value
+                self.get_logger().info(f"xarm_integration updated: {value}.")
+
+            elif name in ['tf_x', 'tf_y', 'tf_z', 'tf_qx', 'tf_qy', 'tf_qz', 'tf_qw']:
+                if not isinstance(value, (int, float)):
+                    return SetParametersResult(successful=False, reason=f"{name} must be a number.")
+                setattr(self, name, float(value))
+                self.get_logger().info(f"Updated {name}: {value}.")
 
         return SetParametersResult(successful=True)
 
